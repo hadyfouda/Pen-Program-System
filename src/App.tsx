@@ -28,17 +28,11 @@ import {
   Eye,
   AlertTriangle,
   RefreshCw,
-  Cloud,
-  FileSpreadsheet,
-  Settings,
-  Download,
-  Trash2,
   ExternalLink,
   Share2,
   Check,
   Building2,
   ShieldCheck,
-  FolderOpen,
   LogOut,
   User as UserIcon,
 } from "lucide-react";
@@ -166,7 +160,7 @@ function AdminManagementPortal() {
   }, []);
 
   const [adminTab, setAdminTab] = useState<
-    "overview" | "accounts" | "dispenses" | "requests" | "settings"
+    "overview" | "accounts" | "dispenses" | "requests"
   >("overview");
 
   // Live Data States
@@ -178,7 +172,6 @@ function AdminManagementPortal() {
   const [storageStatus, setStorageStatus] = useState<StorageStatus>(penService.getStorageStatus());
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedSharepointLink, setCopiedSharepointLink] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -222,35 +215,6 @@ function AdminManagementPortal() {
     setCopiedLink(true);
     toast.success("تم نسخ رابط محطة الصرف المخصصة للصيدليات إلى الحافظة!");
     setTimeout(() => setCopiedLink(false), 2500);
-  };
-
-  const handleCopySharepointLink = () => {
-    if (storageStatus.sharepointFolderUrl) {
-      navigator.clipboard.writeText(storageStatus.sharepointFolderUrl);
-      setCopiedSharepointLink(true);
-      toast.success("تم نسخ رابط مجلد شيربوينت إيفا فارما إلى الحافظة!");
-      setTimeout(() => setCopiedSharepointLink(false), 2500);
-    }
-  };
-
-  const handleExportBackup = () => {
-    const jsonStr = penService.exportBackup();
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `EVA_Insulin_Pen_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("تم تصدير النسخة الاحتياطية لقاعدة البيانات بنجاح");
-  };
-
-  const handleClearAllData = () => {
-    if (window.confirm("هل أنت متأكد من رغبتك في تفريغ وإعادة ضبط كافة سجلات قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.")) {
-      penService.clearAllData();
-      void loadData();
-      toast.success("تم تفريغ كافة سجلات قاعدة البيانات وإعادة الضبط");
-    }
   };
 
   const handleSignOut = () => {
@@ -316,13 +280,9 @@ function AdminManagementPortal() {
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
             {/* Storage Status Pill */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border text-[11px]">
-              <span
-                className={`size-2 rounded-full ${
-                  storageStatus.excelConnected ? "bg-emerald-500 animate-pulse" : "bg-sky-500"
-                }`}
-              />
+              <span className="size-2 rounded-full bg-emerald-500" />
               <span className="font-medium text-foreground">
-                {storageStatus.excelConnected ? "Microsoft 365 Cloud" : "Encrypted Storage"}
+                Database Active
               </span>
             </div>
 
@@ -429,16 +389,6 @@ function AdminManagementPortal() {
                 <span className="size-2 rounded-full bg-amber-500 animate-ping" />
               )}
             </Button>
-
-            <Button
-              variant={adminTab === "settings" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setAdminTab("settings")}
-              className="font-bold text-xs gap-1.5 h-8"
-            >
-              <Settings className="size-3.5" />
-              الإعدادات والربط
-            </Button>
           </div>
 
           {/* Refresh Button */}
@@ -481,213 +431,6 @@ function AdminManagementPortal() {
             onRefresh={() => void loadData()}
             isAdmin={true}
           />
-        )}
-
-        {adminTab === "settings" && (
-          <div className="space-y-4" dir="rtl">
-            <div className="p-4 sm:p-6 rounded-2xl border bg-card space-y-4">
-              <div className="flex items-center gap-2">
-                <Cloud className="size-5 text-primary" />
-                <h3 className="text-base font-bold text-foreground">
-                  إعدادات الربط السحابي وقاعدة بيانات EVA Pharma
-                </h3>
-              </div>
-
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                المنظومة متصلة بجداول Excel Online المعتمدة ومجلدات SharePoint / OneDrive لحفظ السجلات وتوثيق صرف الأقلام والمستندات الطبية المشفرة.
-              </p>
-
-              {/* Active Corporate User Profile Card */}
-              <div className="p-4 rounded-xl border bg-muted/20 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="size-10 rounded-xl bg-primary text-primary-foreground font-black text-sm flex items-center justify-center shadow-xs">
-                      {userInitials}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-xs sm:text-sm font-bold text-foreground">
-                          {corporateUser.displayName}
-                        </h4>
-                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
-                          جلسة عمل نشطة
-                        </Badge>
-                      </div>
-                      <span className="text-[11px] text-muted-foreground font-mono block">
-                        {corporateUser.email} • {corporateUser.department}
-                      </span>
-                    </div>
-                  </div>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSignOut}
-                    className="text-xs h-8 text-destructive border-destructive/30 hover:bg-destructive/10 gap-1.5"
-                  >
-                    <LogOut className="size-3.5" />
-                    تسجيل الخروج / تبديل الحساب
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] bg-card p-2.5 rounded-lg border text-muted-foreground">
-                  <div>
-                    <span className="block text-[10px] font-semibold text-foreground">الدور الوظيفي:</span>
-                    <span className="text-foreground font-medium">{corporateUser.role}</span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] font-semibold text-foreground">دومين المؤسسة:</span>
-                    <span className="font-mono text-foreground font-medium">@evapharma.com</span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] font-semibold text-foreground">حالة الأمان:</span>
-                    <span className="text-emerald-600 font-medium">بريد مفعل وكلمة مرور مشفرة</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Official EVA Pharma SharePoint Link Card */}
-              {storageStatus.sharepointFolderUrl && (
-                <div className="p-4 rounded-xl border border-sky-500/30 bg-sky-500/10 space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FolderOpen className="size-5 text-sky-600 dark:text-sky-400" />
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-foreground">
-                          المجلد الرسمي لشيربوينت وون درايف EVA Pharma
-                        </h4>
-                        <span className="text-[10px] text-muted-foreground block">
-                          المسار المتصل: /Documents/EVA Insulin Pen Program (hady_mohamed_evapharma_com)
-                        </span>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="text-[10px] bg-sky-500/10 text-sky-600 border-sky-500/20 font-bold">
-                      شيربوينت متصل
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <input
-                      type="text"
-                      readOnly
-                      value={storageStatus.sharepointFolderUrl}
-                      className="flex-1 text-xs font-mono p-2 rounded-lg border bg-background text-foreground truncate"
-                      dir="ltr"
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={handleCopySharepointLink}
-                      className="text-xs font-semibold h-9 shrink-0 gap-1.5"
-                    >
-                      {copiedSharepointLink ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
-                      {copiedSharepointLink ? "تم النسخ" : "نسخ الرابط"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => window.open(storageStatus.sharepointFolderUrl, "_blank")}
-                      className="text-xs font-semibold h-9 shrink-0 gap-1.5 bg-sky-600 hover:bg-sky-700 text-white"
-                    >
-                      <ExternalLink className="size-3.5" />
-                      فتح في SharePoint
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3.5 rounded-xl border bg-muted/30 space-y-1.5">
-                  <span className="font-semibold block text-foreground flex items-center gap-1.5">
-                    <FileSpreadsheet className="size-4 text-emerald-500" />
-                    قاعدة بيانات جداول Excel Online:
-                  </span>
-                  <span className="font-mono text-muted-foreground block text-[11px]" dir="ltr">
-                    {storageStatus.excelFilePath}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground block">
-                    الجداول: Tbl_Enrolled_Accounts, Tbl_Dispenses, Tbl_Stock_Requests, Tbl_Exceptions
-                  </span>
-                </div>
-
-                <div className="p-3.5 rounded-xl border bg-muted/30 space-y-1.5">
-                  <span className="font-semibold block text-foreground flex items-center gap-1.5">
-                    <Cloud className="size-4 text-sky-500" />
-                    مجلد مستندات المرضى OneDrive:
-                  </span>
-                  <span className="font-mono text-muted-foreground block text-[11px]" dir="ltr">
-                    {storageStatus.oneDriveFolder}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground block" dir="ltr">
-                    Patient_Documents/&#123;facilityType&#125;/&#123;facilityName&#125;/
-                  </span>
-                </div>
-              </div>
-
-              {/* Dedicated Portal Distribution Banner */}
-              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="size-4 text-primary" />
-                    <span className="text-xs font-bold text-foreground">رابط محطة الصرف المخصصة للصيدليات والعيادات</span>
-                  </div>
-                  <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    محطة مستقلة
-                  </Badge>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  زوّد الأطباء والصيادلة بهذا الرابط المستقل للدخول بكود الـ PIN الخاص بجهتهم وصرف الأقلام دون أي وصول للوحة الإدارة:
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={getPortalUrl()}
-                    className="flex-1 text-xs font-mono p-2 rounded-lg border bg-background text-foreground"
-                    dir="ltr"
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCopyPharmacyPortalLink}
-                    className="text-xs font-semibold h-9 shrink-0 gap-1.5"
-                  >
-                    {copiedLink ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
-                    {copiedLink ? "تم النسخ" : "نسخ الرابط"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleOpenPharmacyPortal}
-                    className="text-xs font-semibold h-9 shrink-0 gap-1.5"
-                  >
-                    <ExternalLink className="size-3.5" />
-                    فتح المحطة
-                  </Button>
-                </div>
-              </div>
-
-              {/* Actions: Export Backup & Reset */}
-              <div className="pt-3 border-t flex flex-wrap items-center justify-between gap-3">
-                <Button
-                  size="sm"
-                  onClick={handleExportBackup}
-                  className="font-bold gap-1.5 text-xs h-9"
-                >
-                  <Download className="size-3.5" />
-                  تصدير نسخة احتياطية كاملة (JSON)
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleClearAllData}
-                  className="font-semibold gap-1.5 text-xs h-9 text-destructive hover:bg-destructive/10 border-destructive/30"
-                >
-                  <Trash2 className="size-3.5" />
-                  إعادة ضبط وتفريغ قاعدة البيانات
-                </Button>
-              </div>
-            </div>
-          </div>
         )}
       </main>
 

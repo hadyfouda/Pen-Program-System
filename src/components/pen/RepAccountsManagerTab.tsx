@@ -35,6 +35,7 @@ import {
   RefreshCw,
   ExternalLink,
   Share2,
+  Download,
 } from "lucide-react";
 
 interface RepAccountsManagerTabProps {
@@ -168,6 +169,53 @@ export function RepAccountsManagerTab({
     window.open(waUrl, "_blank");
   };
 
+  const handleExportAccountsCSV = () => {
+    if (accounts.length === 0) {
+      toast.error("No enrolled facilities to export");
+      return;
+    }
+
+    const headers = [
+      "Account ID",
+      "Facility Name",
+      "Type",
+      "Specialty",
+      "Territory",
+      "Phone",
+      "Enrolled By Rep",
+      "Allocated Pens",
+      "Dispensed Count",
+      "Current Stock Balance",
+      "Status",
+      "Enrollment Date",
+    ];
+
+    const rows = filteredAccounts.map((a) => [
+      `"${a.account_id}"`,
+      `"${a.account_name.replace(/"/g, '""')}"`,
+      `"${a.account_type}"`,
+      `"${(a.specialty || "").replace(/"/g, '""')}"`,
+      `"${a.territory.replace(/"/g, '""')}"`,
+      `"${a.phone}"`,
+      `"${a.enrolled_by_rep.replace(/"/g, '""')}"`,
+      a.allocated_pens,
+      a.dispensed_count,
+      a.current_balance,
+      `"${a.status}"`,
+      `"${new Date(a.created_at).toISOString().slice(0, 10)}"`,
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `EVA_Enrolled_Facilities_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Enrolled facilities exported to Excel (CSV) successfully");
+  };
+
   return (
     <div className="space-y-4" dir="ltr">
       {/* Top Action Bar & Metrics */}
@@ -183,6 +231,18 @@ export function RepAccountsManagerTab({
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportAccountsCSV}
+            disabled={accounts.length === 0}
+            className="text-xs font-semibold gap-1.5 h-9 border-border"
+            title="Download Excel / CSV spreadsheet of all enrolled accounts"
+          >
+            <Download className="size-4 text-emerald-600" />
+            <span>Export Excel</span>
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
