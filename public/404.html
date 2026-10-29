@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>EVA Insulin Pen Program - Redirecting...</title>
+    <script>
+      (function() {
+        var path = window.location.pathname;
+        var search = window.location.search;
+        var hash = window.location.hash;
+        var isPortal = path.toLowerCase().indexOf('portal') !== -1 || search.indexOf('portal') !== -1 || hash.indexOf('portal') !== -1;
+        
+        // Extract repo name if on github.io
+        var repoMatch = path.match(/^\/([^/]+)/);
+        var base = repoMatch ? '/' + repoMatch[1] + '/' : './';
+        
+        if (isPortal) {
+          window.location.replace(base + '?portal=true');
+        } else {
+          window.location.replace(base);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p style="font-family: sans-serif; text-align: center; margin-top: 50px; color: #64748b;">
+      Loading EVA Insulin Pen Program...
+    </p>
+  </body>
+</html>
