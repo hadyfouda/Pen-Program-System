@@ -90,7 +90,7 @@ function StandalonePharmacyPortal() {
   const [storageStatus] = useState<StorageStatus>(() => penService.getStorageStatus());
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans" dir="ltr">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans" dir="rtl">
       {/* Dedicated Pharmacy Portal Header */}
       <header className="sticky top-0 z-30 border-b bg-card/90 backdrop-blur-md px-4 sm:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -103,21 +103,21 @@ function StandalonePharmacyPortal() {
                 className="max-h-full w-auto object-contain"
               />
             </div>
-            <div className="border-l border-border pl-3">
+            <div className="border-r border-border pr-3">
               <div className="flex items-center gap-2">
                 <h1 className="text-xs sm:text-sm font-black text-foreground tracking-tight flex items-center gap-1.5">
                   <Syringe className="size-4 text-primary shrink-0" />
-                  Dispensing Station
+                  محطة صرف أقلام الأنسولين
                 </h1>
                 <Badge
                   variant="outline"
                   className="hidden sm:inline-flex border-primary/30 text-primary bg-primary/5 text-[9px] font-bold"
                 >
-                  Pharmacies & Clinics
+                  بوابة الصيدليات والعيادات
                 </Badge>
               </div>
               <p className="text-[10px] text-muted-foreground hidden sm:block">
-                Secure Self-Service Terminal for Insulin Pen Dispensation
+                بوابة الخدمة الذاتية المعتمدة لصرف الأقلام ودعم المرضى
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ function StandalonePharmacyPortal() {
                 }`}
               />
               <span className="font-medium text-foreground">
-                {storageStatus.excelConnected ? "Microsoft 365 Cloud" : "Encrypted Local Storage"}
+                {storageStatus.excelConnected ? "سحابة Microsoft 365" : "تخزين مشفر آمن"}
               </span>
             </div>
           </div>
@@ -145,10 +145,10 @@ function StandalonePharmacyPortal() {
 
       {/* Footer */}
       <footer className="border-t bg-card/40 py-3 px-4 text-center text-xs text-muted-foreground">
-        <p>© {new Date().getFullYear()} EVA Pharma — Insulin Pen Patient Support Program. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} EVA Pharma — منظومة دعم مرضى أقلام الأنسولين. جميع الحقوق محفوظة.</p>
       </footer>
 
-      <Toaster position="bottom-right" dir="ltr" richColors />
+      <Toaster position="bottom-right" dir="rtl" richColors />
     </div>
   );
 }
@@ -220,7 +220,7 @@ function AdminManagementPortal() {
   const handleCopyPharmacyPortalLink = () => {
     navigator.clipboard.writeText(getPortalUrl());
     setCopiedLink(true);
-    toast.success("Dedicated Pharmacy Portal link copied to clipboard!");
+    toast.success("تم نسخ رابط محطة الصرف المخصصة للصيدليات إلى الحافظة!");
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
@@ -228,7 +228,7 @@ function AdminManagementPortal() {
     if (storageStatus.sharepointFolderUrl) {
       navigator.clipboard.writeText(storageStatus.sharepointFolderUrl);
       setCopiedSharepointLink(true);
-      toast.success("EVA Pharma SharePoint folder link copied to clipboard!");
+      toast.success("تم نسخ رابط مجلد شيربوينت إيفا فارما إلى الحافظة!");
       setTimeout(() => setCopiedSharepointLink(false), 2500);
     }
   };
@@ -242,14 +242,14 @@ function AdminManagementPortal() {
     a.download = `EVA_Insulin_Pen_Backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Database backup exported successfully");
+    toast.success("تم تصدير النسخة الاحتياطية لقاعدة البيانات بنجاح");
   };
 
   const handleClearAllData = () => {
-    if (window.confirm("Are you sure you want to reset and clear all database records? This cannot be undone.")) {
+    if (window.confirm("هل أنت متأكد من رغبتك في تفريغ وإعادة ضبط كافة سجلات قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.")) {
       penService.clearAllData();
       void loadData();
-      toast.success("Database reset successfully");
+      toast.success("تم تفريغ كافة سجلات قاعدة البيانات وإعادة الضبط");
     }
   };
 
@@ -437,7 +437,7 @@ function AdminManagementPortal() {
               className="font-bold text-xs gap-1.5 h-8"
             >
               <Settings className="size-3.5" />
-              Sync & Settings
+              الإعدادات والربط
             </Button>
           </div>
 
@@ -484,17 +484,17 @@ function AdminManagementPortal() {
         )}
 
         {adminTab === "settings" && (
-          <div className="space-y-4">
+          <div className="space-y-4" dir="rtl">
             <div className="p-4 sm:p-6 rounded-2xl border bg-card space-y-4">
               <div className="flex items-center gap-2">
                 <Cloud className="size-5 text-primary" />
                 <h3 className="text-base font-bold text-foreground">
-                  EVA Pharma Cloud Storage & Audit Database Configuration
+                  إعدادات الربط السحابي وقاعدة بيانات EVA Pharma
                 </h3>
               </div>
 
               <p className="text-xs text-muted-foreground leading-relaxed">
-                The program connects to official EVA Pharma SharePoint / OneDrive workbooks for structured audit logging and encrypted document storage.
+                المنظومة متصلة بجداول Excel Online المعتمدة ومجلدات SharePoint / OneDrive لحفظ السجلات وتوثيق صرف الأقلام والمستندات الطبية المشفرة.
               </p>
 
               {/* Active Corporate User Profile Card */}
@@ -510,7 +510,7 @@ function AdminManagementPortal() {
                           {corporateUser.displayName}
                         </h4>
                         <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-bold">
-                          Active Corporate Session
+                          جلسة عمل نشطة
                         </Badge>
                       </div>
                       <span className="text-[11px] text-muted-foreground font-mono block">
@@ -526,22 +526,22 @@ function AdminManagementPortal() {
                     className="text-xs h-8 text-destructive border-destructive/30 hover:bg-destructive/10 gap-1.5"
                   >
                     <LogOut className="size-3.5" />
-                    Sign Out / Switch Account
+                    تسجيل الخروج / تبديل الحساب
                   </Button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] bg-card p-2.5 rounded-lg border text-muted-foreground">
                   <div>
-                    <span className="block text-[10px] font-semibold text-foreground">Role / Position:</span>
+                    <span className="block text-[10px] font-semibold text-foreground">الدور الوظيفي:</span>
                     <span className="text-foreground font-medium">{corporateUser.role}</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] font-semibold text-foreground">Organization Domain:</span>
+                    <span className="block text-[10px] font-semibold text-foreground">دومين المؤسسة:</span>
                     <span className="font-mono text-foreground font-medium">@evapharma.com</span>
                   </div>
                   <div>
-                    <span className="block text-[10px] font-semibold text-foreground">Security Status:</span>
-                    <span className="text-emerald-600 font-medium">Verified Email & Encrypted Password</span>
+                    <span className="block text-[10px] font-semibold text-foreground">حالة الأمان:</span>
+                    <span className="text-emerald-600 font-medium">بريد مفعل وكلمة مرور مشفرة</span>
                   </div>
                 </div>
               </div>
@@ -554,15 +554,15 @@ function AdminManagementPortal() {
                       <FolderOpen className="size-5 text-sky-600 dark:text-sky-400" />
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-foreground">
-                          Official EVA Pharma SharePoint & OneDrive Folder
+                          المجلد الرسمي لشيربوينت وون درايف EVA Pharma
                         </h4>
                         <span className="text-[10px] text-muted-foreground block">
-                          Connected Directory: /Documents/EVA Insulin Pen Program (hady_mohamed_evapharma_com)
+                          المسار المتصل: /Documents/EVA Insulin Pen Program (hady_mohamed_evapharma_com)
                         </span>
                       </div>
                     </div>
                     <Badge variant="outline" className="text-[10px] bg-sky-500/10 text-sky-600 border-sky-500/20 font-bold">
-                      SharePoint Linked
+                      شيربوينت متصل
                     </Badge>
                   </div>
 
@@ -572,6 +572,7 @@ function AdminManagementPortal() {
                       readOnly
                       value={storageStatus.sharepointFolderUrl}
                       className="flex-1 text-xs font-mono p-2 rounded-lg border bg-background text-foreground truncate"
+                      dir="ltr"
                     />
                     <Button
                       size="sm"
@@ -580,7 +581,7 @@ function AdminManagementPortal() {
                       className="text-xs font-semibold h-9 shrink-0 gap-1.5"
                     >
                       {copiedSharepointLink ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
-                      {copiedSharepointLink ? "Copied" : "Copy URL"}
+                      {copiedSharepointLink ? "تم النسخ" : "نسخ الرابط"}
                     </Button>
                     <Button
                       size="sm"
@@ -588,7 +589,7 @@ function AdminManagementPortal() {
                       className="text-xs font-semibold h-9 shrink-0 gap-1.5 bg-sky-600 hover:bg-sky-700 text-white"
                     >
                       <ExternalLink className="size-3.5" />
-                      Open in SharePoint
+                      فتح في SharePoint
                     </Button>
                   </div>
                 </div>
@@ -598,26 +599,26 @@ function AdminManagementPortal() {
                 <div className="p-3.5 rounded-xl border bg-muted/30 space-y-1.5">
                   <span className="font-semibold block text-foreground flex items-center gap-1.5">
                     <FileSpreadsheet className="size-4 text-emerald-500" />
-                    Excel Online Database Workbook:
+                    قاعدة بيانات جداول Excel Online:
                   </span>
-                  <span className="font-mono text-muted-foreground block text-[11px]">
+                  <span className="font-mono text-muted-foreground block text-[11px]" dir="ltr">
                     {storageStatus.excelFilePath}
                   </span>
                   <span className="text-[10px] text-muted-foreground block">
-                    Tables: Tbl_Enrolled_Accounts, Tbl_Dispenses, Tbl_Stock_Requests, Tbl_Exceptions
+                    الجداول: Tbl_Enrolled_Accounts, Tbl_Dispenses, Tbl_Stock_Requests, Tbl_Exceptions
                   </span>
                 </div>
 
                 <div className="p-3.5 rounded-xl border bg-muted/30 space-y-1.5">
                   <span className="font-semibold block text-foreground flex items-center gap-1.5">
                     <Cloud className="size-4 text-sky-500" />
-                    OneDrive Patient Documents Folder:
+                    مجلد مستندات المرضى OneDrive:
                   </span>
-                  <span className="font-mono text-muted-foreground block text-[11px]">
+                  <span className="font-mono text-muted-foreground block text-[11px]" dir="ltr">
                     {storageStatus.oneDriveFolder}
                   </span>
-                  <span className="text-[10px] text-muted-foreground block">
-                    Structured path: Patient_Documents/&#123;facilityType&#125;/&#123;facilityName&#125;/
+                  <span className="text-[10px] text-muted-foreground block" dir="ltr">
+                    Patient_Documents/&#123;facilityType&#125;/&#123;facilityName&#125;/
                   </span>
                 </div>
               </div>
@@ -627,14 +628,14 @@ function AdminManagementPortal() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Building2 className="size-4 text-primary" />
-                    <span className="text-xs font-bold text-foreground">Dedicated Pharmacy & Clinic Portal Link</span>
+                    <span className="text-xs font-bold text-foreground">رابط محطة الصرف المخصصة للصيدليات والعيادات</span>
                   </div>
                   <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    Separated Station
+                    محطة مستقلة
                   </Badge>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Provide this direct standalone link to doctors and pharmacies so they can log in with their PIN and dispense pens without access to management settings:
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  زوّد الأطباء والصيادلة بهذا الرابط المستقل للدخول بكود الـ PIN الخاص بجهتهم وصرف الأقلام دون أي وصول للوحة الإدارة:
                 </p>
                 <div className="flex items-center gap-2">
                   <input
@@ -642,6 +643,7 @@ function AdminManagementPortal() {
                     readOnly
                     value={getPortalUrl()}
                     className="flex-1 text-xs font-mono p-2 rounded-lg border bg-background text-foreground"
+                    dir="ltr"
                   />
                   <Button
                     size="sm"
@@ -650,7 +652,7 @@ function AdminManagementPortal() {
                     className="text-xs font-semibold h-9 shrink-0 gap-1.5"
                   >
                     {copiedLink ? <Check className="size-3.5 text-emerald-500" /> : <Share2 className="size-3.5" />}
-                    {copiedLink ? "Copied" : "Copy Link"}
+                    {copiedLink ? "تم النسخ" : "نسخ الرابط"}
                   </Button>
                   <Button
                     size="sm"
@@ -658,7 +660,7 @@ function AdminManagementPortal() {
                     className="text-xs font-semibold h-9 shrink-0 gap-1.5"
                   >
                     <ExternalLink className="size-3.5" />
-                    Open Station
+                    فتح المحطة
                   </Button>
                 </div>
               </div>
@@ -671,7 +673,7 @@ function AdminManagementPortal() {
                   className="font-bold gap-1.5 text-xs h-9"
                 >
                   <Download className="size-3.5" />
-                  Export Full JSON Backup
+                  تصدير نسخة احتياطية كاملة (JSON)
                 </Button>
 
                 <Button
@@ -681,7 +683,7 @@ function AdminManagementPortal() {
                   className="font-semibold gap-1.5 text-xs h-9 text-destructive hover:bg-destructive/10 border-destructive/30"
                 >
                   <Trash2 className="size-3.5" />
-                  Reset & Clear Database
+                  إعادة ضبط وتفريغ قاعدة البيانات
                 </Button>
               </div>
             </div>

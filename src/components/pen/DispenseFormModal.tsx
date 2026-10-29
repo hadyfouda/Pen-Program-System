@@ -149,7 +149,7 @@ export function DispenseFormModal({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file (JPEG or PNG)");
+      toast.error("يرجى اختيار ملف صورة صالح (JPEG أو PNG)");
       return;
     }
 
@@ -173,12 +173,12 @@ export function DispenseFormModal({
         (1 - compressed.compressedSizeKB / Math.max(1, compressed.originalSizeKB)) * 100
       );
       toast.success(
-        `Image compressed: ${formatFileSize(compressed.originalSizeKB)} ➔ ${formatFileSize(
+        `تم ضغط الصورة: ${formatFileSize(compressed.originalSizeKB)} ➔ ${formatFileSize(
           compressed.compressedSizeKB
-        )} (${ratio}% saved)`
+        )} (توفير ${ratio}%)`
       );
     } catch {
-      toast.error("Failed to process and compress image, please try again");
+      toast.error("حدث خطأ أثناء معالجة وضغط الصورة، يرجى المحاولة مرة أخرى");
     } finally {
       setCompressing(null);
     }
@@ -204,50 +204,50 @@ export function DispenseFormModal({
     e.preventDefault();
 
     if (!activeAccount) {
-      toast.error("Please select an enrolled dispensing facility");
+      toast.error("يرجى اختيار المنشأة أو الصيدلية المعتمدة");
       return;
     }
 
     if (activeAccount.current_balance < dispensedQty) {
       toast.error(
-        `Available stock at this facility (${activeAccount.current_balance} pens) is insufficient to dispense ${dispensedQty} pens.`
+        `الرصيد المتاح بالمنشأة (${activeAccount.current_balance} قلم) غير كافٍ لصرف ${dispensedQty} قلم.`
       );
       return;
     }
 
     if (hasDuplicateProduct) {
-      toast.error("This insulin product has already been dispensed to this patient! Please submit an exception request.");
+      toast.error("تم صرف هذا الصنف من الأنسولين للمريض مسبقاً! يرجى تقديم طلب استثناء.");
       setShowExceptionDialog(true);
       return;
     }
 
     if (!prescribingDoctor.trim()) {
-      toast.error("Please enter the prescribing physician's name");
+      toast.error("يرجى إدخال اسم الطبيب المعالج");
       return;
     }
 
     if (!patientName.trim()) {
-      toast.error("Please enter patient's full name");
+      toast.error("يرجى إدخال اسم المريض بالكامل");
       return;
     }
 
     if (!patientPhone.trim() || patientPhone.trim().length < 10) {
-      toast.error("Please enter a valid patient phone number");
+      toast.error("يرجى إدخال رقم هاتف صحيح للمريض");
       return;
     }
 
     if (!nationalId.trim() || nationalId.trim().length !== 14 || !/^\d+$/.test(nationalId.trim())) {
-      toast.error("National ID must be exactly 14 numeric digits");
+      toast.error("يجب أن يتكون الرقم القومي من 14 رقماً بالضبط");
       return;
     }
 
     if (!rxDoc) {
-      toast.error("Medical prescription (Rx) photo is required");
+      toast.error("صورة الروشتة الطبية مطلوبة");
       return;
     }
 
     if (!idDoc) {
-      toast.error("Patient National ID photo is required for verification");
+      toast.error("صورة بطاقة الرقم القومي للمريض مطلوبة للتحقق");
       return;
     }
 
@@ -298,14 +298,14 @@ export function DispenseFormModal({
       });
 
       toast.success(
-        `Dispensed ${dispensedQty} pen(s) (${productName}) to ${patientName} successfully`
+        `تم تسجيل صرف ${dispensedQty} قلم (${productName}) للمريض ${patientName} بنجاح`
       );
 
       onSuccess(newRecord);
       handleReset();
       onOpenChange(false);
     } catch {
-      toast.error("An error occurred while saving dispense record");
+      toast.error("حدث خطأ أثناء حفظ سجل الصرف، يرجى المحاولة ثانية");
     } finally {
       setSubmitting(false);
     }
@@ -316,7 +316,7 @@ export function DispenseFormModal({
     e.preventDefault();
     if (!activeAccount) return;
     if (!exceptionReason.trim()) {
-      toast.error("Please state the clinical/operational reason for the exception");
+      toast.error("يرجى كتابة المبرر الطبي أو الإداري للاستثناء");
       return;
     }
 
@@ -335,26 +335,26 @@ export function DispenseFormModal({
         exception_reason: exceptionReason.trim(),
       });
 
-      toast.success("Exception request forwarded to administration for review & approval");
+      toast.success("تم إرسال طلب الاستثناء إلى الإدارة للمراجعة والاعتماد");
       setShowExceptionDialog(false);
       onOpenChange(false);
       handleReset();
     } catch {
-      toast.error("Failed to submit exception request");
+      toast.error("فشل إرسال طلب الاستثناء");
     } finally {
       setSubmittingException(false);
     }
   };
 
   const formBody = (
-    <form onSubmit={handleSubmit} className="space-y-4" dir="ltr">
+    <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
       {/* Account Info Box */}
       <div className="p-3 rounded-lg border bg-muted/40 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-muted-foreground">Authorized Dispensing Facility:</span>
+          <span className="text-xs font-semibold text-muted-foreground">المنشأة المعتمدة للصرف:</span>
           {activeAccount && (
             <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-              Available Stock: {activeAccount.current_balance} pens
+              الرصيد المتاح: {activeAccount.current_balance} قلم
             </span>
           )}
         </div>
@@ -374,8 +374,8 @@ export function DispenseFormModal({
           >
             {accountsList.map((a) => (
               <option key={a.account_id} value={a.account_id}>
-                {a.account_type === "private_clinic" ? "🩺 Clinic: " : a.account_type === "pharmacy" ? "🏪 Pharmacy: " : "🏥 Center: "}
-                {a.account_name} — (Stock: {a.current_balance} pens)
+                {a.account_type === "private_clinic" ? "🩺 عيادة: " : a.account_type === "pharmacy" ? "🏪 صيدلية: " : "🏥 مركز: "}
+                {a.account_name} — (الرصيد: {a.current_balance} قلم)
               </option>
             ))}
           </select>
@@ -389,12 +389,12 @@ export function DispenseFormModal({
               <Building2 className="size-4 text-primary shrink-0" />
             )}
             <span className="text-xs font-bold text-foreground">{activeAccount.account_name}</span>
-            <span className="text-[10px] text-muted-foreground ml-auto">{activeAccount.territory}</span>
+            <span className="text-[10px] text-muted-foreground mr-auto">{activeAccount.territory}</span>
           </div>
         ) : (
           <div className="text-xs text-amber-600 flex items-center gap-1.5">
             <AlertTriangle className="size-4" />
-            No enrolled facility selected yet
+            لم يتم تحديد منشأة بعد
           </div>
         )}
       </div>
@@ -402,33 +402,33 @@ export function DispenseFormModal({
       {/* Patient & Doctor Details */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Patient Full Name *</Label>
+          <Label className="text-xs font-semibold text-foreground">اسم المريض بالكامل *</Label>
           <Input
             value={patientName}
             onChange={(e) => setPatientName(e.target.value)}
-            placeholder="e.g. Mahmoud Ali Mohamed"
+            placeholder="مثال: أحمد محمود علي"
             required
-            className="text-xs"
+            className="text-xs text-right"
           />
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Prescribing Physician *</Label>
+          <Label className="text-xs font-semibold text-foreground">الطبيب المعالج *</Label>
           <Input
             value={prescribingDoctor}
             onChange={(e) => setPrescribingDoctor(e.target.value)}
-            placeholder="Dr. ..."
+            placeholder="د. ..."
             required
-            className="text-xs"
+            className="text-xs text-right"
           />
         </div>
 
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold text-foreground">National ID (14 Digits) *</Label>
+            <Label className="text-xs font-semibold text-foreground">الرقم القومي (14 رقم) *</Label>
             {checkingHistory && (
               <span className="text-[10px] text-primary flex items-center gap-1">
-                <Loader2 className="size-3 animate-spin" /> Verifying history...
+                <Loader2 className="size-3 animate-spin" /> جاري التحقق...
               </span>
             )}
           </div>
@@ -439,28 +439,30 @@ export function DispenseFormModal({
             maxLength={14}
             required
             className="text-xs text-center font-mono tracking-widest font-bold"
+            dir="ltr"
           />
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Patient Phone Number *</Label>
+          <Label className="text-xs font-semibold text-foreground">رقم هاتف المريض *</Label>
           <Input
             value={patientPhone}
             onChange={(e) => setPatientPhone(e.target.value)}
             placeholder="01XXXXXXXXX"
             required
-            className="text-xs font-mono"
+            className="text-xs font-mono text-right"
+            dir="ltr"
           />
         </div>
 
         {/* Product Selection */}
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Insulin Product Dispensed *</Label>
+          <Label className="text-xs font-semibold text-foreground">صنف الأنسولين المطلوب صرفه *</Label>
           <div className="relative">
             <select
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              className="w-full text-xs p-2.5 rounded-lg border bg-background font-semibold appearance-none pr-8"
+              className="w-full text-xs p-2.5 rounded-lg border bg-background font-semibold appearance-none pl-8 pr-3 text-right"
               required
             >
               {INSULIN_PRODUCTS.map((p) => (
@@ -469,13 +471,13 @@ export function DispenseFormModal({
                 </option>
               ))}
             </select>
-            <ChevronDown className="size-4 text-muted-foreground absolute right-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="size-4 text-muted-foreground absolute left-2.5 top-3 pointer-events-none" />
           </div>
         </div>
 
         {/* Dispensed Qty */}
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Dispensed Pen Quantity *</Label>
+          <Label className="text-xs font-semibold text-foreground">عدد الأقلام المنصرفة *</Label>
           <Input
             type="number"
             min={1}
@@ -483,7 +485,8 @@ export function DispenseFormModal({
             value={dispensedQty}
             onChange={(e) => setDispensedQty(Math.max(1, parseInt(e.target.value) || 1))}
             required
-            className="text-xs font-bold"
+            className="text-xs font-bold text-center"
+            dir="ltr"
           />
         </div>
       </div>
@@ -494,24 +497,24 @@ export function DispenseFormModal({
           <div className="flex items-center gap-2">
             <AlertTriangle className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
             <span className="font-bold">
-              Notice: This patient has {historyMatches.length} previous dispensing record(s) on file
+              تنبيه: مسجل لهذا المريض عدد {historyMatches.length} عملية صرف سابقة
             </span>
           </div>
 
-          <div className="space-y-1.5 max-h-36 overflow-y-auto pl-1">
+          <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
             {historyMatches.map((h) => (
               <div
                 key={h.record_id}
                 className="p-2 rounded-lg bg-background/80 border text-[11px] flex flex-col sm:flex-row justify-between gap-1 text-foreground"
               >
                 <div>
-                  <span className="font-bold text-primary block">{h.product_name} ({h.dispensed_qty} pen)</span>
+                  <span className="font-bold text-primary block">{h.product_name} ({h.dispensed_qty} قلم)</span>
                   <span className="text-muted-foreground text-[10px]">
-                    Facility: {h.account_name} • Doctor: {h.prescribing_doctor}
+                    المنشأة: {h.account_name} • الطبيب: {h.prescribing_doctor}
                   </span>
                 </div>
-                <div className="text-right text-muted-foreground text-[10px] sm:self-center font-mono">
-                  {new Date(h.created_at).toLocaleDateString("en-US", {
+                <div className="text-left text-muted-foreground text-[10px] sm:self-center font-mono" dir="ltr">
+                  {new Date(h.created_at).toLocaleDateString("ar-EG", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
@@ -526,10 +529,10 @@ export function DispenseFormModal({
             <div className="p-2.5 rounded-lg bg-destructive/15 border border-destructive/30 text-destructive text-xs space-y-2">
               <div className="font-bold flex items-center gap-1.5">
                 <AlertTriangle className="size-4 shrink-0" />
-                <span>Duplicate Alert: ({productName}) was already dispensed to this patient!</span>
+                <span>تحذير تكرار الصرف: تم صرف صنف ({productName}) لهذا المريض مسبقاً!</span>
               </div>
               <p className="text-[11px] leading-relaxed">
-                Under program rules, repeating the same insulin brand requires an approved <strong>Exception Request</strong>.
+                وفقاً لضوابط برنامج الدعم، يتطلب تكرار نفس صنف الأنسولين الحصول على موافقة <strong>طلب استثناء معتمد</strong> من إدارة البرنامج.
               </p>
               <Button
                 type="button"
@@ -538,7 +541,7 @@ export function DispenseFormModal({
                 className="w-full text-xs font-bold gap-1.5 bg-amber-600 hover:bg-amber-700 text-white h-8"
               >
                 <Send className="size-3.5" />
-                Submit Exception Request for This Patient
+                تقديم طلب استثناء لهذا المريض
               </Button>
             </div>
           )}
@@ -550,15 +553,15 @@ export function DispenseFormModal({
         <div className="flex items-center justify-between">
           <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
             <ShieldCheck className="size-4 text-primary" />
-            Supporting Documents (Instant Auto-Compression)
+            المستندات المؤيدة (ضغط فوري تلقائي)
           </Label>
-          <span className="text-[10px] text-muted-foreground font-mono">Encrypted to OneDrive</span>
+          <span className="text-[10px] text-muted-foreground font-mono">مشفر ومحمي سحابياً</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {/* Rx Document */}
           <DocumentUploadSlot
-            title="Medical Prescription (Rx) *"
+            title="صورة الروشتة الطبية *"
             doc={rxDoc}
             compressing={compressing === "rx"}
             onFileSelect={(e) => handleFileUpload(e, "rx")}
@@ -567,7 +570,7 @@ export function DispenseFormModal({
 
           {/* National ID Document */}
           <DocumentUploadSlot
-            title="National ID Card *"
+            title="صورة بطاقة الرقم القومي *"
             doc={idDoc}
             compressing={compressing === "id"}
             onFileSelect={(e) => handleFileUpload(e, "id")}
@@ -576,7 +579,7 @@ export function DispenseFormModal({
 
           {/* Consent Document (Optional) */}
           <DocumentUploadSlot
-            title="Receipt / Consent (Optional)"
+            title="إيصال / إقرار الاستلام (اختياري)"
             doc={consentDoc}
             compressing={compressing === "consent"}
             onFileSelect={(e) => handleFileUpload(e, "consent")}
@@ -587,13 +590,13 @@ export function DispenseFormModal({
 
       {/* Notes */}
       <div className="space-y-1">
-        <Label className="text-xs font-semibold text-muted-foreground">Additional Notes (Optional)</Label>
+        <Label className="text-xs font-semibold text-muted-foreground">ملاحظات إضافية (اختياري)</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Any specific clinical notes or dispensation comments..."
+          placeholder="أي ملاحظات طبية أو إدارية خاصة بالصرف..."
           rows={2}
-          className="text-xs resize-none"
+          className="text-xs resize-none text-right"
         />
       </div>
 
@@ -612,12 +615,12 @@ export function DispenseFormModal({
         {submitting ? (
           <>
             <Loader2 className="size-4 animate-spin" />
-            Saving Dispense & Uploading Encrypted Docs...
+            جاري حفظ الصرف ورفع المستندات المشفرة...
           </>
         ) : (
           <>
             <Syringe className="size-4" />
-            Confirm Dispense & Deduct from Stock Balance
+            تأكيد تسجيل الصرف وخصم الرصيد
           </>
         )}
       </Button>
@@ -625,31 +628,31 @@ export function DispenseFormModal({
       {/* Exception Dialog if Duplicate or Exception Needed */}
       {showExceptionDialog && (
         <Dialog open={showExceptionDialog} onOpenChange={setShowExceptionDialog}>
-          <DialogContent className="sm:max-w-md p-5" dir="ltr">
-            <DialogHeader className="text-left">
+          <DialogContent className="sm:max-w-md p-5" dir="rtl">
+            <DialogHeader className="text-right">
               <DialogTitle className="text-base font-bold flex items-center gap-2">
-                <AlertTriangle className="size-5 text-amber-500" /> Submit Dispensing Exception Request
+                <AlertTriangle className="size-5 text-amber-500" /> تقديم طلب استثناء صرف قلم
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
-                Patient: {patientName || "—"} (National ID: {nationalId || "—"})
+                المريض: {patientName || "—"} (الرقم القومي: {nationalId || "—"})
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleExceptionSubmit} className="space-y-3.5 py-2">
               <div className="p-3 bg-muted/40 rounded-lg text-xs space-y-1">
-                <span className="font-semibold block text-foreground">Requested Product for Exception:</span>
-                <span className="text-primary font-bold">{productName} ({dispensedQty} pen)</span>
+                <span className="font-semibold block text-foreground">الصنف المطلوب للاستثناء:</span>
+                <span className="text-primary font-bold">{productName} ({dispensedQty} قلم)</span>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">Medical / Justification Reason *</Label>
+                <Label className="text-xs font-semibold">المبرر الطبي أو الإداري للاستثناء *</Label>
                 <Textarea
                   value={exceptionReason}
                   onChange={(e) => setExceptionReason(e.target.value)}
-                  placeholder="e.g. Physician adjusted dosage, previous pen damaged, emergency refill..."
+                  placeholder="مثال: تعديل جرعة بواسطة الطبيب، تلف القلم السابق، تكرار طارئ معتمد..."
                   rows={3}
                   required
-                  className="text-xs resize-none"
+                  className="text-xs resize-none text-right"
                 />
               </div>
 
@@ -659,7 +662,7 @@ export function DispenseFormModal({
                 className="w-full font-bold gap-2 text-xs h-10 shadow-sm bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <Send className="size-4" />
-                {submittingException ? "Submitting..." : "Send Exception to Administration"}
+                {submittingException ? "جاري الإرسال..." : "إرسال طلب الاستثناء للإدارة"}
               </Button>
             </form>
           </DialogContent>
@@ -671,13 +674,13 @@ export function DispenseFormModal({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="p-4 max-h-[92vh] overflow-y-auto">
-          <DrawerHeader className="p-0 mb-3 text-left" dir="ltr">
+        <DrawerContent className="p-4 max-h-[92vh] overflow-y-auto" dir="rtl">
+          <DrawerHeader className="p-0 mb-3 text-right" dir="rtl">
             <DrawerTitle className="text-base font-bold flex items-center gap-2">
-              <Syringe className="size-5 text-primary" /> Dispense Insulin Pen to Patient
+              <Syringe className="size-5 text-primary" /> تسجيل صرف قلم أنسولين لمريض
             </DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
-              Dispense insulin pen with instant duplicate verification and compressed document upload.
+              تسجيل عملية الصرف مع التحقق الفوري من التكرار ورفع المستندات الطبية المضغوطة.
             </DrawerDescription>
           </DrawerHeader>
           {formBody}
@@ -688,13 +691,13 @@ export function DispenseFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto p-5" dir="ltr">
-        <DialogHeader className="text-left">
+      <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto p-5" dir="rtl">
+        <DialogHeader className="text-right" dir="rtl">
           <DialogTitle className="text-base font-bold flex items-center gap-2">
-            <Syringe className="size-5 text-primary" /> Dispense Insulin Pen to Patient
+            <Syringe className="size-5 text-primary" /> تسجيل صرف قلم أنسولين لمريض
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
-            Record patient dispensation, verify history, and capture prescriptions.
+            تسجيل عملية الصرف، والتحقق التلقائي من السجل السابق، وتوثيق المستندات المرفقة.
           </DialogDescription>
         </DialogHeader>
         {formBody}
@@ -721,7 +724,7 @@ function DocumentUploadSlot({
       {compressing ? (
         <div className="space-y-1.5 py-2">
           <Loader2 className="size-5 animate-spin text-primary mx-auto" />
-          <span className="text-[10px] text-muted-foreground block font-medium">Compressing...</span>
+          <span className="text-[10px] text-muted-foreground block font-medium">جاري الضغط...</span>
         </div>
       ) : doc ? (
         <div className="space-y-1.5 w-full">
@@ -730,14 +733,14 @@ function DocumentUploadSlot({
             <button
               type="button"
               onClick={onRemove}
-              className="absolute top-0 right-0 bg-destructive text-white p-0.5 rounded-bl"
+              className="absolute top-0 left-0 bg-destructive text-white p-0.5 rounded-br"
             >
               <X className="size-3" />
             </button>
           </div>
           <span className="text-[11px] font-bold text-foreground block truncate">{title}</span>
           <span className="text-[9px] text-emerald-600 dark:text-emerald-400 block font-semibold">
-            {formatFileSize(doc.compressedSize)} (Ready)
+            {formatFileSize(doc.compressedSize)} (جاهز)
           </span>
         </div>
       ) : (
@@ -746,7 +749,7 @@ function DocumentUploadSlot({
             <Upload className="size-4" />
           </div>
           <span className="text-[11px] font-semibold text-foreground block">{title}</span>
-          <span className="text-[9px] text-muted-foreground block">Camera or File</span>
+          <span className="text-[9px] text-muted-foreground block">كاميرا أو ملف</span>
           <input
             type="file"
             accept="image/*"

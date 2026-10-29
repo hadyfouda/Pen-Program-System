@@ -102,7 +102,7 @@ export const penService = {
       patient_name: data.patient_name,
       patient_phone: data.patient_phone,
       national_id: data.national_id,
-      product_name: data.product_name || "Regular Insulin",
+      product_name: data.product_name || "جلارجيفين (Glargivin)",
       rx_image_id: data.rx_image_id,
       id_image_id: data.id_image_id,
       consent_image_id: data.consent_image_id,

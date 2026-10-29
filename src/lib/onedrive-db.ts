@@ -284,7 +284,7 @@ class OneDriveDatabaseStore {
           patient_phone: d.patient_phone,
           prescribing_doctor: d.prescribing_doctor,
           account_name: d.account_name,
-          product_name: d.product_name || "Regular Insulin",
+          product_name: d.product_name || "جلارجيفين (Glargivin)",
           dispensed_qty: d.dispensed_qty || 1,
           created_at: d.created_at,
         });
@@ -308,7 +308,7 @@ class OneDriveDatabaseStore {
       created_at: new Date().toISOString(),
       status: "approved",
       dispensed_qty: dispense.dispensed_qty || 1,
-      product_name: dispense.product_name || "Regular Insulin",
+      product_name: dispense.product_name || "جلارجيفين (Glargivin)",
     };
 
     // Deduct stock balance from the related enrolled account
@@ -446,7 +446,7 @@ class OneDriveDatabaseStore {
       created_at: new Date().toISOString(),
       admin_status: "pending",
       pens_count: exc.pens_count || 1,
-      product_name: exc.product_name || "Regular Insulin",
+      product_name: exc.product_name || "جلارجيفين (Glargivin)",
     };
 
     this.exceptions.unshift(newExc);

@@ -6,13 +6,9 @@
 export type AccountType = "private_clinic" | "pharmacy" | "medical_center";
 
 export const INSULIN_PRODUCTS = [
-  "Regular Insulin (Short-acting)",
-  "NPH Insulin (Intermediate-acting)",
-  "Premixed Insulin 70/30",
-  "Insulin Glargine (Long-acting)",
-  "Insulin Degludec (Ultra Long-acting)",
-  "Insulin Aspart (Rapid-acting)",
-  "Insulin Lispro (Rapid-acting)",
+  "جلارجيفين (Glargivin)",
+  "هيوماكسين ميكس 70/30 (Humaxin Mix 70/30)",
+  "هيوماكسين رابيد (Humaxin Rapid)",
 ] as const;
 
 export interface EnrolledAccount {

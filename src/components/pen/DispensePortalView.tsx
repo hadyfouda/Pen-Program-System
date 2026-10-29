@@ -80,7 +80,7 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pin.length < 4) {
-      setError("Please enter your 6-digit access PIN");
+      setError("برجاء إدخال كود الـ PIN المكوّن من 6 أرقام");
       return;
     }
 
@@ -89,21 +89,21 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
     try {
       const acc = await penService.authenticateByPin(pin);
       if (!acc) {
-        setError("Invalid PIN code or facility account is currently inactive");
-        toast.error("Authentication failed: Incorrect PIN code");
+        setError("كود PIN غير صحيح أو أن حساب الجهة غير مفعل حالياً");
+        toast.error("فشل التحقق: كود PIN غير صحيح");
         return;
       }
-      toast.success(`Welcome, ${acc.account_name}`);
+      toast.success(`مرحباً بك، ${acc.account_name}`);
       onLogin(acc);
     } catch {
-      setError("An error occurred during verification. Please try again.");
+      setError("حدث خطأ أثناء التحقق. برجاء المحاولة مرة أخرى.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[82vh] flex items-center justify-center p-4" dir="ltr">
+    <div className="min-h-[82vh] flex items-center justify-center p-4" dir="rtl">
       <div className="w-full max-w-md space-y-6">
         {/* Logo and title */}
         <div className="text-center space-y-3">
@@ -116,11 +116,11 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
           </div>
           <div>
             <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-primary/5 mb-1.5">
-              Dedicated Dispensing Terminal
+              محطة صرف أقلام الأنسولين
             </Badge>
-            <h1 className="text-xl font-black text-foreground tracking-tight">Pharmacy & Clinic Dispensing Portal</h1>
-            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              Enter your facility's authorized 6-digit PIN to dispense insulin pens, verify patient quotas, and monitor stock.
+            <h1 className="text-xl font-black text-foreground tracking-tight">بوابة صرف الصيدليات والعيادات</h1>
+            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
+              أدخل كود الـ PIN المكوّن من 6 أرقام المعتمد لمنشأتك لبدء صرف أقلام الأنسولين وفحص سقف المريض ومتابعة الرصيد المتاح.
             </p>
           </div>
         </div>
@@ -130,7 +130,7 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-foreground text-center block">
-                Facility Access PIN (6 Digits)
+                كود PIN الخاص بالجهة (6 أرقام)
               </Label>
               <div className="relative">
                 <Input
@@ -145,6 +145,7 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
                   placeholder="••••••"
                   autoFocus
                   className="text-center text-3xl font-mono tracking-widest font-black h-14 bg-muted/20 border-2 focus-visible:border-primary"
+                  dir="ltr"
                 />
                 <Lock className="size-4 text-muted-foreground/60 absolute left-4 top-5 pointer-events-none" />
               </div>
@@ -163,16 +164,16 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
               className="w-full font-bold h-11 text-xs sm:text-sm gap-2 shadow-sm"
             >
               <LogIn className="size-4" />
-              {loading ? "Verifying PIN..." : "Sign In to Dispensing Station"}
+              {loading ? "جاري التحقق من الـ PIN..." : "تسجيل الدخول لمحطة الصرف"}
             </Button>
           </form>
 
           <div className="pt-3 border-t text-center space-y-1">
             <p className="text-xs text-muted-foreground">
-              Don't have your access PIN yet?
+              ليس لديك كود PIN الخاص بمنشأتك بعد؟
             </p>
-            <p className="text-[11px] text-primary font-medium">
-              Please contact your designated EVA Pharma medical representative to obtain your facility's PIN.
+            <p className="text-[11px] text-primary font-medium leading-relaxed">
+              برجاء التواصل مع مندوب دعاية إيفا فارما المسؤول عن منطقتك للحصول على كود الدخول.
             </p>
           </div>
         </div>
@@ -180,7 +181,7 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
         {/* Security badge */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
           <ShieldCheck className="size-3.5 text-emerald-500" />
-          <span>Encrypted Patient Audit System • Microsoft 365 Cloud</span>
+          <span>نظام تدقيق مشفر لبيانات المرضى • سحابة Microsoft 365</span>
         </div>
       </div>
     </div>
@@ -244,17 +245,17 @@ function PortalDashboard({
   // Fulfill approved exception handler
   const handleFulfillException = async (exc: DispenseException) => {
     if (account.current_balance < exc.pens_count) {
-      toast.error(`Current stock balance (${account.current_balance} pens) is insufficient to dispense this exception`);
+      toast.error(`رصيد الأقلام المتاح (${account.current_balance} قلم) غير كافٍ لصرف هذا الاستثناء`);
       return;
     }
 
     setFulfillingId(exc.exception_id);
     try {
       await penService.fulfillApprovedException(exc.exception_id);
-      toast.success(`Approved exception dispensed for patient ${exc.patient_name} successfully!`);
+      toast.success(`تم صرف الاستثناء المعتمد للمريض ${exc.patient_name} بنجاح!`);
       void refreshAccountData();
     } catch (err: any) {
-      toast.error(err?.message || "An error occurred while dispensing exception");
+      toast.error(err?.message || "حدث خطأ أثناء صرف الاستثناء");
     } finally {
       setFulfillingId(null);
     }
@@ -273,11 +274,11 @@ function PortalDashboard({
         requested_qty: requestedQty,
         notes: stockNotes,
       });
-      toast.success("Stock replenishment request submitted to administration successfully");
+      toast.success("تم إرسال طلب توريد رصيد أقلام إضافي للإدارة بنجاح");
       setIsStockModalOpen(false);
       setStockNotes("");
     } catch {
-      toast.error("Failed to submit replenishment request");
+      toast.error("فشل في إرسال طلب التوريد");
     } finally {
       setSubmittingStock(false);
     }
@@ -287,7 +288,7 @@ function PortalDashboard({
   const handleExceptionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!exceptionPhone.trim() || !exceptionReason.trim() || !exceptionPatientName.trim()) {
-      toast.error("Please fill in all required fields");
+      toast.error("برجاء استيفاء جميع الحقول الإلزامية");
       return;
     }
     setSubmittingException(true);
@@ -299,12 +300,12 @@ function PortalDashboard({
         patient_name: exceptionPatientName.trim(),
         patient_phone: exceptionPhone.trim(),
         national_id: exceptionNationalId.trim(),
-        prescribing_doctor: account.account_type === "private_clinic" ? account.account_name : "Authorized Physician",
+        prescribing_doctor: account.account_type === "private_clinic" ? account.account_name : "طبيب معتمد",
         product_name: exceptionProduct,
         pens_count: exceptionPensCount,
         exception_reason: exceptionReason.trim(),
       });
-      toast.success("Exception request submitted to administration for review & approval");
+      toast.success("تم إرسال طلب الاستثناء لإدارة البرنامج للمراجعة والاعتماد");
       setIsExceptionModalOpen(false);
       setExceptionPatientName("");
       setExceptionPhone("");
@@ -312,14 +313,14 @@ function PortalDashboard({
       setExceptionReason("");
       void refreshAccountData();
     } catch {
-      toast.error("Failed to submit exception request");
+      toast.error("فشل في إرسال طلب الاستثناء");
     } finally {
       setSubmittingException(false);
     }
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6" dir="ltr">
+    <div className="space-y-4 sm:space-y-6" dir="rtl">
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-2xl border bg-card/80 backdrop-blur-xs">
         <div className="flex items-center gap-3">
@@ -337,14 +338,14 @@ function PortalDashboard({
               <h2 className="text-base sm:text-lg font-bold text-foreground">{account.account_name}</h2>
               <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">
                 {account.account_type === "private_clinic"
-                  ? account.specialty || "Private Clinic"
+                  ? account.specialty || "عيادة خاصة"
                   : account.account_type === "pharmacy"
-                  ? "Authorized Pharmacy"
-                  : "Medical Center"}
+                  ? "صيدلية معتمدة"
+                  : "مركز طبي"}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {account.territory} • Phone: <span className="font-mono">{account.phone}</span>
+              {account.territory} • الهاتف: <span className="font-mono" dir="ltr">{account.phone}</span>
             </p>
           </div>
         </div>
@@ -356,7 +357,7 @@ function PortalDashboard({
           className="text-xs font-semibold gap-1.5 text-muted-foreground hover:text-destructive"
         >
           <LogOut className="size-3.5" />
-          Sign Out
+          تسجيل الخروج
         </Button>
       </div>
 
@@ -365,37 +366,37 @@ function PortalDashboard({
         {/* Balance Card */}
         <div className="p-4 rounded-2xl border bg-card space-y-1 relative overflow-hidden">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-muted-foreground">Available Stock to Dispense</span>
+            <span className="text-xs font-medium text-muted-foreground">الرصيد المتاح للصرف</span>
             <Package className="size-4 text-primary" />
           </div>
           <div className="text-3xl font-black text-primary pt-1 font-mono">
-            {account.current_balance} <span className="text-sm font-bold text-muted-foreground">pens</span>
+            {account.current_balance} <span className="text-sm font-bold text-muted-foreground">قلم</span>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            Out of {account.allocated_pens} pens total allocated quota
+            من إجمالي حصة معتمدة {account.allocated_pens} قلم
           </p>
         </div>
 
         {/* Dispensed Card */}
         <div className="p-4 rounded-2xl border bg-card space-y-1">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-medium text-muted-foreground">Total Dispensed to Patients</span>
+            <span className="text-xs font-medium text-muted-foreground">إجمالي المنصرف للمرضى</span>
             <CheckCircle2 className="size-4 text-emerald-500" />
           </div>
           <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 pt-1 font-mono">
-            {account.dispensed_count} <span className="text-sm font-bold text-muted-foreground">pens</span>
+            {account.dispensed_count} <span className="text-sm font-bold text-muted-foreground">قلم</span>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            Recorded with verified prescription & National ID
+            مسجلة بروشتة معتمدة ورقم قومي
           </p>
         </div>
 
         {/* Primary Action Button */}
         <div className="p-4 rounded-2xl border border-primary/30 bg-primary/5 flex flex-col justify-between space-y-2">
           <div>
-            <span className="text-xs font-bold text-foreground block">Dispense Pen to Patient</span>
+            <span className="text-xs font-bold text-foreground block">صرف قلم أنسولين لمريض</span>
             <p className="text-[10px] text-muted-foreground mt-0.5">
-              Instant patient duplicate check & Rx camera capture
+              فحص فوري لسقف وتكرار المريض وتصوير الروشتة
             </p>
           </div>
           <Button
@@ -404,7 +405,7 @@ function PortalDashboard({
             className="w-full font-bold gap-2 text-xs h-9 shadow-sm"
           >
             <Plus className="size-4" />
-            Dispense Pen Now
+            صرف قلم الآن
           </Button>
         </div>
       </div>
@@ -416,11 +417,11 @@ function PortalDashboard({
             <div className="flex items-center gap-2">
               <Sparkles className="size-4 text-emerald-600 dark:text-emerald-400" />
               <h3 className="text-xs sm:text-sm font-bold text-emerald-950 dark:text-emerald-200">
-                Approved Exceptions Ready for Dispense ({approvedExceptions.length})
+                الاستثناءات المعتمدة الجاهزة للصرف ({approvedExceptions.length})
               </h3>
             </div>
             <span className="text-[10px] text-emerald-700 dark:text-emerald-300">
-              You can fulfill these approved pens immediately in 1-click
+              يمكنك صرف هذه الأقلام المعتمدة فوراً بنقرة واحدة
             </span>
           </div>
 
@@ -434,18 +435,18 @@ function PortalDashboard({
                   <div className="flex items-start justify-between gap-2">
                     <span className="font-bold text-xs text-foreground">{exc.patient_name}</span>
                     <Badge className="bg-emerald-500/20 text-emerald-600 border-emerald-500/30 text-[10px]">
-                      Approved ({exc.pens_count} pen)
+                      معتمد ({exc.pens_count} قلم)
                     </Badge>
                   </div>
                   <span className="text-[11px] text-primary font-semibold block mt-0.5">
                     {exc.product_name}
                   </span>
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    Phone: <span className="font-mono">{exc.patient_phone}</span> • Reason: {exc.exception_reason}
+                    الهاتف: <span className="font-mono" dir="ltr">{exc.patient_phone}</span> • السبب: {exc.exception_reason}
                   </p>
                   {exc.admin_notes && (
                     <p className="text-[10px] text-emerald-700 dark:text-emerald-300 mt-1 font-medium">
-                      Admin Note: {exc.admin_notes}
+                      ملاحظة الإدارة: {exc.admin_notes}
                     </p>
                   )}
                 </div>
@@ -457,7 +458,7 @@ function PortalDashboard({
                   className="w-full text-xs font-bold gap-1.5 h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   <CheckCircle2 className="size-3.5" />
-                  {fulfillingId === exc.exception_id ? "Processing..." : "Dispense Approved Pen Now"}
+                  {fulfillingId === exc.exception_id ? "جاري الصرف..." : "صرف القلم المعتمد الآن"}
                 </Button>
               </div>
             ))}
@@ -474,7 +475,7 @@ function PortalDashboard({
           className="text-xs font-semibold gap-1.5 h-8 border-border"
         >
           <Package className="size-3.5 text-primary" />
-          Request Stock Replenishment
+          طلب توريد رصيد أقلام إضافي
         </Button>
 
         <Button
@@ -484,7 +485,7 @@ function PortalDashboard({
           className="text-xs font-semibold gap-1.5 h-8 border-border text-amber-600 dark:text-amber-400"
         >
           <AlertTriangle className="size-3.5" />
-          Submit Patient Exception Request
+          تقديم طلب استثناء لمريض
         </Button>
       </div>
 
@@ -493,47 +494,47 @@ function PortalDashboard({
         <div className="flex items-center justify-between">
           <h3 className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2">
             <History className="size-4 text-primary" />
-            Recent Dispensations at Your Facility
+            سجلات الصرف الأخيرة في منشأتك
           </h3>
-          <span className="text-[10px] text-muted-foreground">{dispenses.length} records logged</span>
+          <span className="text-[10px] text-muted-foreground">{dispenses.length} عملية مسجلة</span>
         </div>
 
         {dispenses.length === 0 ? (
           <div className="p-6 text-center rounded-xl border border-dashed bg-muted/20 space-y-1">
             <Syringe className="size-7 mx-auto text-muted-foreground/60" />
-            <p className="text-xs font-semibold text-foreground">No dispensations logged at your facility yet</p>
+            <p className="text-xs font-semibold text-foreground">لم يتم تسجيل أي عمليات صرف في منشأتك حتى الآن</p>
             <p className="text-[10px] text-muted-foreground">
-              Click the "Dispense Pen Now" button above to record your first patient dispensation.
+              اضغط على زر "صرف قلم الآن" أعلاه لتسجيل أول عملية صرف لمريض.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left border-collapse">
+            <table className="w-full text-xs text-right border-collapse">
               <thead>
                 <tr className="border-b bg-muted/30 text-muted-foreground font-semibold">
-                  <th className="p-2">Record ID</th>
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Patient Name</th>
-                  <th className="p-2">Phone</th>
-                  <th className="p-2">National ID</th>
-                  <th className="p-2">Product</th>
-                  <th className="p-2 text-center">Qty</th>
+                  <th className="p-2">كود السجل</th>
+                  <th className="p-2">التاريخ</th>
+                  <th className="p-2">اسم المريض</th>
+                  <th className="p-2">رقم الهاتف</th>
+                  <th className="p-2">الرقم القومي</th>
+                  <th className="p-2">صنف الأنسولين</th>
+                  <th className="p-2 text-center">الكمية</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {dispenses.map((d) => (
                   <tr key={d.record_id} className="hover:bg-muted/20 transition">
-                    <td className="p-2 font-mono font-bold text-primary">{d.record_id}</td>
-                    <td className="p-2 text-muted-foreground">
-                      {new Date(d.created_at).toLocaleDateString("en-US")}
+                    <td className="p-2 font-mono font-bold text-primary" dir="ltr">{d.record_id}</td>
+                    <td className="p-2 text-muted-foreground" dir="ltr">
+                      {new Date(d.created_at).toLocaleDateString("ar-EG")}
                     </td>
                     <td className="p-2 font-medium">{d.patient_name}</td>
-                    <td className="p-2 font-mono">{d.patient_phone}</td>
-                    <td className="p-2 font-mono text-muted-foreground">{d.national_id}</td>
-                    <td className="p-2 font-medium text-primary">{d.product_name || "Regular Insulin"}</td>
+                    <td className="p-2 font-mono" dir="ltr">{d.patient_phone}</td>
+                    <td className="p-2 font-mono text-muted-foreground" dir="ltr">{d.national_id}</td>
+                    <td className="p-2 font-medium text-primary">{d.product_name || "جلارجيفين (Glargivin)"}</td>
                     <td className="p-2 text-center">
                       <Badge className="font-bold text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                        {d.dispensed_qty} pen
+                        {d.dispensed_qty} قلم
                       </Badge>
                     </td>
                   </tr>
@@ -553,25 +554,25 @@ function PortalDashboard({
             void refreshAccountData();
           }}
           account={account}
-          recordedBy={`Portal (${account.account_name})`}
+          recordedBy={`بوابة الصيدليات (${account.account_name})`}
         />
       )}
 
       {/* Stock Request Modal */}
       <Dialog open={isStockModalOpen} onOpenChange={setIsStockModalOpen}>
-        <DialogContent className="sm:max-w-md p-5" dir="ltr">
-          <DialogHeader className="text-left">
+        <DialogContent className="sm:max-w-md p-5" dir="rtl">
+          <DialogHeader className="text-right">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <Package className="size-5 text-primary" /> Request Pen Stock Replenishment
+              <Package className="size-5 text-primary" /> طلب توريد رصيد أقلام إضافي
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Submit a formal request to EVA Program Management for an additional pen batch delivery for {account.account_name}.
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              تقديم طلب رسمي لإدارة برنامج EVA Pharma لتوريد دفعة أقلام جديدة لمنشأة {account.account_name}.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleStockSubmit} className="space-y-3.5 py-2">
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Requested Pen Quantity *</Label>
+              <Label className="text-xs font-semibold">الكمية المطلوبة من الأقلام *</Label>
               <Input
                 type="number"
                 min={5}
@@ -580,15 +581,16 @@ function PortalDashboard({
                 onChange={(e) => setRequestedQty(parseInt(e.target.value) || 5)}
                 required
                 className="text-xs font-bold"
+                dir="ltr"
               />
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Notes / Justification</Label>
+              <Label className="text-xs font-semibold">ملاحظات / أسباب طلب التوريد</Label>
               <Textarea
                 value={stockNotes}
                 onChange={(e) => setStockNotes(e.target.value)}
-                placeholder="e.g. Surge in patient flow and current stock nearing exhaustion..."
+                placeholder="مثال: زيادة إقبال المرضى واقتراب نفاذ الرصيد الحالي المتاح..."
                 rows={2}
                 className="text-xs resize-none"
               />
@@ -600,7 +602,7 @@ function PortalDashboard({
               className="w-full font-bold gap-2 text-xs h-10 shadow-sm"
             >
               <Send className="size-4" />
-              {submittingStock ? "Sending Request..." : "Send Replenishment Request"}
+              {submittingStock ? "جاري إرسال الطلب..." : "إرسال طلب التوريد"}
             </Button>
           </form>
         </DialogContent>
@@ -608,23 +610,23 @@ function PortalDashboard({
 
       {/* Exception Request Modal */}
       <Dialog open={isExceptionModalOpen} onOpenChange={setIsExceptionModalOpen}>
-        <DialogContent className="sm:max-w-md p-5" dir="ltr">
-          <DialogHeader className="text-left">
+        <DialogContent className="sm:max-w-md p-5" dir="rtl">
+          <DialogHeader className="text-right">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <AlertTriangle className="size-5 text-amber-500" /> Patient Exception Request
+              <AlertTriangle className="size-5 text-amber-500" /> طلب استثناء علاجي لمريض
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Submit an exceptional request for special clinical circumstances or early refills.
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              تقديم طلب استثناء لحالات طبية خاصة أو تكرار الصرف المبكر.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleExceptionSubmit} className="space-y-3 py-2">
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Patient Full Name *</Label>
+              <Label className="text-xs font-semibold">اسم المريض بالكامل *</Label>
               <Input
                 value={exceptionPatientName}
                 onChange={(e) => setExceptionPatientName(e.target.value)}
-                placeholder="e.g. Ahmed Hassan"
+                placeholder="مثال: أحمد حسن محمد"
                 required
                 className="text-xs"
               />
@@ -632,48 +634,50 @@ function PortalDashboard({
 
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">Mobile Number *</Label>
+                <Label className="text-xs font-semibold">رقم الهاتف المحمول *</Label>
                 <Input
                   value={exceptionPhone}
                   onChange={(e) => setExceptionPhone(e.target.value)}
                   placeholder="01XXXXXXXXX"
                   required
                   className="text-xs font-mono"
+                  dir="ltr"
                 />
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">National ID (14 Digits)</Label>
+                <Label className="text-xs font-semibold">الرقم القومي (14 رقم)</Label>
                 <Input
                   value={exceptionNationalId}
                   onChange={(e) => setExceptionNationalId(e.target.value.replace(/\D/g, "").slice(0, 14))}
                   placeholder="290XXXXXXXXXXX"
                   maxLength={14}
                   className="text-xs text-center font-mono"
+                  dir="ltr"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">Insulin Product *</Label>
+                <Label className="text-xs font-semibold">صنف الأنسولين *</Label>
                 <div className="relative">
                   <select
                     value={exceptionProduct}
                     onChange={(e) => setExceptionProduct(e.target.value)}
-                    className="w-full text-xs p-2 rounded-md border bg-background font-semibold appearance-none pr-6"
+                    className="w-full text-xs p-2 rounded-md border bg-background font-semibold appearance-none pl-6 text-right"
                     required
                   >
                     {INSULIN_PRODUCTS.map((p) => (
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
-                  <ChevronDown className="size-3.5 text-muted-foreground absolute right-2 top-2.5 pointer-events-none" />
+                  <ChevronDown className="size-3.5 text-muted-foreground absolute left-2 top-2.5 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">Pen Quantity</Label>
+                <Label className="text-xs font-semibold">عدد الأقلام</Label>
                 <Input
                   type="number"
                   min={1}
@@ -681,16 +685,17 @@ function PortalDashboard({
                   value={exceptionPensCount}
                   onChange={(e) => setExceptionPensCount(Math.max(1, parseInt(e.target.value) || 1))}
                   className="text-xs font-bold"
+                  dir="ltr"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Clinical Reason & Justification *</Label>
+              <Label className="text-xs font-semibold">المبرر والسبب الطبي للاستثناء *</Label>
               <Textarea
                 value={exceptionReason}
                 onChange={(e) => setExceptionReason(e.target.value)}
-                placeholder="Explain the patient's condition and reason for requesting an exception..."
+                placeholder="وضح حالة المريض الطبية ومبرر طلب الاستثناء..."
                 rows={2}
                 required
                 className="text-xs resize-none"
@@ -703,7 +708,7 @@ function PortalDashboard({
               className="w-full font-bold gap-2 text-xs h-9 shadow-sm bg-amber-600 hover:bg-amber-700 text-white"
             >
               <Send className="size-4" />
-              {submittingException ? "Submitting..." : "Submit Exception to Administration"}
+              {submittingException ? "جاري الإرسال..." : "إرسال طلب الاستثناء للإدارة"}
             </Button>
           </form>
         </DialogContent>

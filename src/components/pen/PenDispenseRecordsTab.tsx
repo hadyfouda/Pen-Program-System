@@ -109,7 +109,7 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
       `"${r.patient_name.replace(/"/g, '""')}"`,
       `"${r.patient_phone}"`,
       `"${r.national_id}"`,
-      `"${(r.product_name || "Regular Insulin").replace(/"/g, '""')}"`,
+      `"${(r.product_name || "جلارجيفين (Glargivin)").replace(/"/g, '""')}"`,
       r.dispensed_qty || 1,
       `"${r.recorded_by.replace(/"/g, '""')}"`,
       r.is_exception ? "Yes" : "No",
@@ -281,7 +281,7 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
                     </td>
 
                     <td className="p-2.5 font-semibold text-primary">
-                      {r.product_name || "Regular Insulin"}
+                      {r.product_name || "جلارجيفين (Glargivin)"}
                     </td>
 
                     <td className="p-2.5 text-center">
