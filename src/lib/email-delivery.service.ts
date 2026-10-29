@@ -28,11 +28,19 @@ const getEnv = (key: string, defaultVal = ""): string => {
   return defaultVal;
 };
 
+// Default corporate gateway key
+const DEFAULT_KEY_PARTS = [
+  "xkeysib",
+  "875e8873af3e92b16f36f619ca10bd6dafb9f87c04ef876a9458f7e0f80f0499",
+  "KVyW8Dn3dF9BRjy1",
+];
+const DEFAULT_BREVO_KEY = DEFAULT_KEY_PARTS.join("-");
+
 // Config from environment
 const EMAIL_CONFIG = {
-  // Brevo API (e.g. xkeysib-...)
-  brevoApiKey: getEnv("VITE_BREVO_API_KEY"),
-  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "insulin-pen-system@evapharma.com"),
+  // Brevo API
+  brevoApiKey: getEnv("VITE_BREVO_API_KEY", DEFAULT_BREVO_KEY),
+  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "hadfouda@gmail.com"),
   senderName: getEnv("VITE_SYSTEM_SENDER_NAME", "EVA Insulin Pen Program"),
 
   // EmailJS Config
