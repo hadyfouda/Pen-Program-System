@@ -102,6 +102,10 @@ export function EnrollAccountModal({
       toast.error("Please enter the territory or governorate");
       return;
     }
+    if (assignedBricks.length > 0 && !assignedBricks.includes(territory)) {
+      toast.error("Please select a territory within your assigned Bricks.");
+      return;
+    }
     if (!phone.trim()) {
       toast.error("Please enter a valid phone number");
       return;
@@ -310,8 +314,12 @@ export function EnrollAccountModal({
         <div className="space-y-1">
           <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
             <span>Territory / Brick *</span>
-            {assignedBricks.length > 0 && (
-              <span className="text-[10px] text-primary font-normal">Assigned Area</span>
+            {assignedBricks.length > 0 ? (
+              <span className="text-[10px] text-primary font-semibold">
+                {assignedBricks.length} Assigned Brick{assignedBricks.length > 1 ? "s" : ""}
+              </span>
+            ) : (
+              <span className="text-[10px] text-muted-foreground font-normal">All Egypt Bricks</span>
             )}
           </Label>
           <div className="relative">
@@ -319,25 +327,14 @@ export function EnrollAccountModal({
               value={territory}
               onChange={(e) => setTerritory(e.target.value)}
               required
-              className="w-full text-xs p-2 rounded-lg border bg-background font-mono font-semibold appearance-none pr-8"
+              className="w-full text-xs p-2 rounded-lg border bg-background font-mono font-semibold appearance-none pr-8 cursor-pointer"
             >
               {assignedBricks.length > 0 ? (
-                <>
-                  <optgroup label="Your Assigned Bricks">
-                    {assignedBricks.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Other Egypt Bricks">
-                    {ALL_BRICK_NAMES.filter((b) => !assignedBricks.includes(b)).map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                  </optgroup>
-                </>
+                assignedBricks.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))
               ) : (
                 EGYPT_REGIONS_DATA.map((reg) => (
                   <optgroup key={reg.region} label={reg.region}>
