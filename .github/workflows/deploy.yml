@@ -36,7 +36,6 @@ jobs:
           VITE_BREVO_API_KEY: ${{ secrets.VITE_BREVO_API_KEY }}
           VITE_SYSTEM_SENDER_EMAIL: "hadfouda@gmail.com"
           VITE_SYSTEM_SENDER_NAME: "EVA Pharma — Insulin Pen Program"
-          VITE_SYSTEM_SENDER_NAME: "EVA Insulin Pen Program"
 
       - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
