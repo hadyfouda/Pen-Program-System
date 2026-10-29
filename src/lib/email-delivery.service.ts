@@ -40,8 +40,10 @@ const DEFAULT_BREVO_KEY = DEFAULT_KEY_PARTS.join("-");
 const EMAIL_CONFIG = {
   // Brevo API
   brevoApiKey: getEnv("VITE_BREVO_API_KEY", DEFAULT_BREVO_KEY),
-  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "hady.mohamed@evapharma.com"),
-  senderName: getEnv("VITE_SYSTEM_SENDER_NAME", "EVA Insulin Pen Program"),
+  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "hadfouda@gmail.com"),
+  senderName: getEnv("VITE_SYSTEM_SENDER_NAME", "EVA Pharma — Insulin Pen Program"),
+  replyToEmail: getEnv("VITE_REPLY_TO_EMAIL", "hady.mohamed@evapharma.com"),
+  replyToName: getEnv("VITE_REPLY_TO_NAME", "EVA Pharma Medical Support"),
 
   // EmailJS Config
   emailjsServiceId: getEnv("VITE_EMAILJS_SERVICE_ID"),
@@ -132,6 +134,10 @@ class EmailDeliveryService {
             sender: {
               name: EMAIL_CONFIG.senderName,
               email: EMAIL_CONFIG.senderEmail,
+            },
+            replyTo: {
+              name: EMAIL_CONFIG.replyToName,
+              email: EMAIL_CONFIG.replyToEmail,
             },
             to: [{ email: toEmail, name: recipientName }],
             subject: `EVA Insulin Pen Program - Verification Passcode [${passcode}]`,
