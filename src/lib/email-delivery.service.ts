@@ -40,7 +40,7 @@ const DEFAULT_BREVO_KEY = DEFAULT_KEY_PARTS.join("-");
 const EMAIL_CONFIG = {
   // Brevo API
   brevoApiKey: getEnv("VITE_BREVO_API_KEY", DEFAULT_BREVO_KEY),
-  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "hadfouda@gmail.com"),
+  senderEmail: getEnv("VITE_SYSTEM_SENDER_EMAIL", "hady.mohamed@evapharma.com"),
   senderName: getEnv("VITE_SYSTEM_SENDER_NAME", "EVA Insulin Pen Program"),
 
   // EmailJS Config
