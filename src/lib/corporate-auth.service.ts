@@ -11,11 +11,14 @@
 
 import { emailDeliveryService, type SendPasscodeResult } from "./email-delivery.service";
 
+export type CorporateRole = "District Manager" | "Medical Rep" | "Program Administrator";
+
 export interface CorporateUser {
   id: string;
   email: string;
   displayName: string;
-  role: string;
+  role: CorporateRole;
+  assignedBricks: string[];
   department: string;
   createdAt: string;
   lastLoginAt: string;
@@ -25,7 +28,8 @@ interface StoredAccount {
   email: string;
   displayName: string;
   passwordHash: string;
-  role: string;
+  role: CorporateRole;
+  assignedBricks: string[];
   department: string;
   createdAt: string;
   lastLoginAt: string;
@@ -220,7 +224,12 @@ class CorporateAuthService {
   /**
    * Set password for account (first time setup or password reset) and save account
    */
-  public async setAccountPassword(email: string, password: string): Promise<CorporateUser> {
+  public async setAccountPassword(
+    email: string,
+    password: string,
+    role: CorporateRole = "Medical Rep",
+    assignedBricks: string[] = []
+  ): Promise<CorporateUser> {
     const clean = email.trim().toLowerCase();
 
     if (!clean.endsWith("@evapharma.com")) {
@@ -237,11 +246,14 @@ class CorporateAuthService {
     const existingIndex = accounts.findIndex((a) => a.email === clean);
 
     const now = new Date().toISOString();
+    const determinedRole: CorporateRole = clean.includes("admin") ? "Program Administrator" : role;
+
     const updatedAccount: StoredAccount = {
       email: clean,
       displayName,
       passwordHash: hashed,
-      role: clean.includes("admin") ? "Program Administrator" : "Medical Representative",
+      role: determinedRole,
+      assignedBricks: Array.isArray(assignedBricks) ? assignedBricks : [],
       department: "EVA Insulin Pen Program",
       createdAt: existingIndex !== -1 ? accounts[existingIndex].createdAt : now,
       lastLoginAt: now,
@@ -261,6 +273,7 @@ class CorporateAuthService {
       email: updatedAccount.email,
       displayName: updatedAccount.displayName,
       role: updatedAccount.role,
+      assignedBricks: updatedAccount.assignedBricks,
       department: updatedAccount.department,
       createdAt: updatedAccount.createdAt,
       lastLoginAt: updatedAccount.lastLoginAt,
@@ -268,6 +281,41 @@ class CorporateAuthService {
 
     this.setSession(user);
     return user;
+  }
+
+  /**
+   * Update User Role and Assigned Bricks
+   */
+  public updateUserRoleAndBricks(
+    email: string,
+    role: CorporateRole,
+    assignedBricks: string[]
+  ): CorporateUser {
+    const clean = email.trim().toLowerCase();
+    const accounts = this.getRegisteredAccounts();
+    const idx = accounts.findIndex((a) => a.email === clean);
+
+    const cleanBricks = Array.isArray(assignedBricks) ? assignedBricks : [];
+
+    if (idx !== -1) {
+      accounts[idx].role = role;
+      accounts[idx].assignedBricks = cleanBricks;
+      this.saveRegisteredAccounts(accounts);
+    }
+
+    const updatedUser: CorporateUser = {
+      id: `usr-${clean.replace(/[^a-zA-Z0-9]/g, "_")}`,
+      email: clean,
+      displayName: this.extractDisplayName(clean),
+      role,
+      assignedBricks: cleanBricks,
+      department: "EVA Insulin Pen Program",
+      createdAt: idx !== -1 ? accounts[idx].createdAt : new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    this.setSession(updatedUser);
+    return updatedUser;
   }
 
   /**
@@ -300,7 +348,8 @@ class CorporateAuthService {
       id: `usr-${clean.replace(/[^a-zA-Z0-9]/g, "_")}`,
       email: account.email,
       displayName: account.displayName,
-      role: account.role,
+      role: account.role || "Medical Rep",
+      assignedBricks: Array.isArray(account.assignedBricks) ? account.assignedBricks : [],
       department: account.department,
       createdAt: account.createdAt,
       lastLoginAt: account.lastLoginAt,

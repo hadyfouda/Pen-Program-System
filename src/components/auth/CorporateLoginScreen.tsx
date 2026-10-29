@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import {
   corporateAuthService,
   type CorporateUser,
+  type CorporateRole,
 } from "@/lib/corporate-auth.service";
+import { TerritorySelectionDialog } from "./TerritorySelectionDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +52,10 @@ export function CorporateLoginScreen({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Territory Selection Modal State
+  const [showTerritoryDialog, setShowTerritoryDialog] = useState(false);
+  const [pendingUser, setPendingUser] = useState<CorporateUser | null>(null);
+
   // Email Dispatch Status
   const [dispatchInfo, setDispatchInfo] = useState<{ provider: string; message: string } | null>(null);
 
@@ -72,6 +78,14 @@ export function CorporateLoginScreen({
     setLoading(true);
     try {
       const user = await corporateAuthService.loginWithPassword(cleanEmail, password);
+      if (
+        (!user.assignedBricks || user.assignedBricks.length === 0) &&
+        user.role !== "Program Administrator"
+      ) {
+        setPendingUser(user);
+        setShowTerritoryDialog(true);
+        return;
+      }
       toast.success(`Welcome back, ${user.displayName}`);
       onSuccess(user);
     } catch (err: any) {
@@ -129,7 +143,7 @@ export function CorporateLoginScreen({
     }
   };
 
-  // 4. Save New Password & Login
+  // 4. Save New Password & Proceed to Role & Territory Selection
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -144,14 +158,35 @@ export function CorporateLoginScreen({
       return;
     }
 
+    // Passwords match! Now open the Egypt Bricks & Role selector
+    setShowTerritoryDialog(true);
+  };
+
+  const handleTerritorySaved = async (selectedRole: CorporateRole, assignedBricks: string[]) => {
     setLoading(true);
     try {
-      const user = await corporateAuthService.setAccountPassword(email, newPassword);
-      toast.success(`Password saved! Welcome to EVA Pen Program, ${user.displayName}`);
-      onSuccess(user);
+      if (step === "SET_NEW_PASSWORD") {
+        const user = await corporateAuthService.setAccountPassword(
+          email,
+          newPassword,
+          selectedRole,
+          assignedBricks
+        );
+        setShowTerritoryDialog(false);
+        toast.success(`Welcome to EVA Pen Program, ${user.displayName}`);
+        onSuccess(user);
+      } else if (pendingUser) {
+        const user = corporateAuthService.updateUserRoleAndBricks(
+          pendingUser.email,
+          selectedRole,
+          assignedBricks
+        );
+        setShowTerritoryDialog(false);
+        toast.success(`Welcome back, ${user.displayName}`);
+        onSuccess(user);
+      }
     } catch (err: any) {
-      setError(err?.message || "Failed to save password.");
-      toast.error(err?.message || "Error setting password");
+      toast.error(err?.message || "Failed to save profile settings");
     } finally {
       setLoading(false);
     }
@@ -542,7 +577,7 @@ export function CorporateLoginScreen({
                 className="w-full h-11 text-xs sm:text-sm font-bold gap-2 shadow-sm cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <CheckCircle2 className="size-4" />
-                {loading ? "Saving Password..." : "Save Password & Enter Pen Program"}
+                {loading ? "Processing..." : "Continue to Select Role & Bricks ➔"}
               </Button>
             </form>
           )}
@@ -556,6 +591,18 @@ export function CorporateLoginScreen({
           </div>
         </div>
       </div>
+
+      {/* Territory & Role Selection Dialog */}
+      <TerritorySelectionDialog
+        open={showTerritoryDialog}
+        onOpenChange={setShowTerritoryDialog}
+        userEmail={email || pendingUser?.email || ""}
+        userName={pendingUser?.displayName || email.split("@")[0] || ""}
+        initialRole={pendingUser?.role || "Medical Rep"}
+        initialBricks={pendingUser?.assignedBricks || []}
+        isFirstTime={step === "SET_NEW_PASSWORD" || !pendingUser?.assignedBricks?.length}
+        onSave={handleTerritorySaved}
+      />
 
       {/* Footer */}
       <div className="max-w-6xl w-full mx-auto text-center text-xs text-muted-foreground py-2">

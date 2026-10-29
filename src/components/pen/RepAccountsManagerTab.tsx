@@ -42,12 +42,16 @@ interface RepAccountsManagerTabProps {
   accounts: EnrolledAccount[];
   onRefresh: () => void;
   repName?: string;
+  assignedBricks?: string[];
+  userRole?: string;
 }
 
 export function RepAccountsManagerTab({
   accounts,
   onRefresh,
   repName = "Field Representative",
+  assignedBricks = [],
+  userRole = "Medical Rep",
 }: RepAccountsManagerTabProps) {
   // Filters & Search
   const [typeFilter, setTypeFilter] = useState<"all" | AccountType>("all");
@@ -671,6 +675,7 @@ export function RepAccountsManagerTab({
         onOpenChange={setIsEnrollOpen}
         onSuccess={() => onRefresh()}
         repName={repName}
+        assignedBricks={assignedBricks}
       />
 
       {/* Dispense Modal (Locked to specific account) */}

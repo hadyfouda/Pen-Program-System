@@ -29,13 +29,17 @@ import {
   Copy,
   Check,
   Send,
+  MapPin,
+  ChevronDown,
 } from "lucide-react";
+import { EGYPT_REGIONS_DATA, ALL_BRICK_NAMES } from "@/data/egypt-bricks";
 
 interface EnrollAccountModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (newAccount: EnrolledAccount) => void;
   repName?: string;
+  assignedBricks?: string[];
 }
 
 export function EnrollAccountModal({
@@ -43,6 +47,7 @@ export function EnrollAccountModal({
   onOpenChange,
   onSuccess,
   repName = "Field Representative",
+  assignedBricks = [],
 }: EnrollAccountModalProps) {
   const isMobile = useIsMobile();
 
@@ -50,7 +55,7 @@ export function EnrollAccountModal({
   const [accountType, setAccountType] = useState<AccountType>("private_clinic");
   const [accountName, setAccountName] = useState("");
   const [specialty, setSpecialty] = useState("Endocrinology & Diabetes");
-  const [territory, setTerritory] = useState("");
+  const [territory, setTerritory] = useState(assignedBricks[0] || ALL_BRICK_NAMES[0]);
   const [phone, setPhone] = useState("");
   const [allocatedPens, setAllocatedPens] = useState<number>(10);
   const [pin, setPin] = useState("");
@@ -64,8 +69,11 @@ export function EnrollAccountModal({
   useEffect(() => {
     if (open && !createdAccount) {
       generateNewPin();
+      if (assignedBricks.length > 0 && !assignedBricks.includes(territory)) {
+        setTerritory(assignedBricks[0]);
+      }
     }
-  }, [open]);
+  }, [open, assignedBricks]);
 
   const generateNewPin = () => {
     const randomPin = Math.floor(100000 + Math.random() * 900000).toString();
@@ -76,7 +84,7 @@ export function EnrollAccountModal({
     setAccountType("private_clinic");
     setAccountName("");
     setSpecialty("Endocrinology & Diabetes");
-    setTerritory("");
+    setTerritory(assignedBricks[0] || ALL_BRICK_NAMES[0]);
     setPhone("");
     setAllocatedPens(10);
     setCreatedAccount(null);
@@ -298,16 +306,54 @@ export function EnrollAccountModal({
       )}
 
       {/* Territory & Phone */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div className="space-y-1">
-          <Label className="text-xs font-semibold text-foreground">Territory / City *</Label>
-          <Input
-            placeholder="e.g. Nasr City, Cairo"
-            value={territory}
-            onChange={(e) => setTerritory(e.target.value)}
-            required
-            className="text-xs"
-          />
+          <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+            <span>Territory / Brick *</span>
+            {assignedBricks.length > 0 && (
+              <span className="text-[10px] text-primary font-normal">Assigned Area</span>
+            )}
+          </Label>
+          <div className="relative">
+            <select
+              value={territory}
+              onChange={(e) => setTerritory(e.target.value)}
+              required
+              className="w-full text-xs p-2 rounded-lg border bg-background font-mono font-semibold appearance-none pr-8"
+            >
+              {assignedBricks.length > 0 ? (
+                <>
+                  <optgroup label="Your Assigned Bricks">
+                    {assignedBricks.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Other Egypt Bricks">
+                    {ALL_BRICK_NAMES.filter((b) => !assignedBricks.includes(b)).map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </optgroup>
+                </>
+              ) : (
+                EGYPT_REGIONS_DATA.map((reg) => (
+                  <optgroup key={reg.region} label={reg.region}>
+                    {reg.sectors.flatMap((sec) =>
+                      sec.bricks.map((b) => (
+                        <option key={b} value={b}>
+                          {b} ({sec.sector})
+                        </option>
+                      ))
+                    )}
+                  </optgroup>
+                ))
+              )}
+            </select>
+            <ChevronDown className="size-3.5 text-muted-foreground absolute right-2.5 top-3 pointer-events-none" />
+          </div>
         </div>
 
         <div className="space-y-1">

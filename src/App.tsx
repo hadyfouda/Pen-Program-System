@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { penService } from "@/lib/onedrive-pen.service";
 import type {
   EnrolledAccount,
@@ -19,8 +19,10 @@ import systemLogo from "@/assets/system-logo.jpg";
 import {
   corporateAuthService,
   type CorporateUser,
+  type CorporateRole,
 } from "@/lib/corporate-auth.service";
 import { CorporateLoginScreen } from "@/components/auth/CorporateLoginScreen";
+import { TerritorySelectionDialog } from "@/components/auth/TerritorySelectionDialog";
 import {
   Syringe,
   BarChart3,
@@ -34,6 +36,7 @@ import {
   Building2,
   ShieldCheck,
   LogOut,
+  MapPin,
   User as UserIcon,
 } from "lucide-react";
 
@@ -173,6 +176,20 @@ function AdminManagementPortal() {
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
 
+  // Territory & Role Dialog State
+  const [showTerritoryEdit, setShowTerritoryEdit] = useState(false);
+
+  // Prompt onboarding if user has not selected bricks yet
+  useEffect(() => {
+    if (
+      corporateUser &&
+      (!corporateUser.assignedBricks || corporateUser.assignedBricks.length === 0) &&
+      corporateUser.role !== "Program Administrator"
+    ) {
+      setShowTerritoryEdit(true);
+    }
+  }, [corporateUser]);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -197,9 +214,93 @@ function AdminManagementPortal() {
     void loadData();
   }, [loadData]);
 
+  // ====================================================================
+  // TERRITORY-BASED DATA ISOLATION (RBAC & BRICKS SCOPING)
+  // Each MR and DM only sees their assigned Bricks!
+  // ====================================================================
+  const userBricks = useMemo(() => corporateUser?.assignedBricks || [], [corporateUser]);
+  const isSuperAdmin = corporateUser?.role === "Program Administrator";
+
+  const visibleAccounts = useMemo(() => {
+    if (isSuperAdmin || userBricks.length === 0) return accounts;
+    return accounts.filter((a: EnrolledAccount) => userBricks.includes(a.territory));
+  }, [accounts, userBricks, isSuperAdmin]);
+
+  const visibleAccountIds = useMemo(() => {
+    return new Set(visibleAccounts.map((a: EnrolledAccount) => a.account_id));
+  }, [visibleAccounts]);
+
+  const visibleDispenses = useMemo(() => {
+    if (isSuperAdmin || userBricks.length === 0) return dispenses;
+    return dispenses.filter((d: DispenseRecord) => visibleAccountIds.has(d.account_id));
+  }, [dispenses, visibleAccountIds, isSuperAdmin]);
+
+  const visibleStockRequests = useMemo(() => {
+    if (isSuperAdmin || userBricks.length === 0) return stockRequests;
+    return stockRequests.filter((r: StockRequest) => visibleAccountIds.has(r.account_id));
+  }, [stockRequests, visibleAccountIds, isSuperAdmin]);
+
+  const visibleExceptions = useMemo(() => {
+    if (isSuperAdmin || userBricks.length === 0) return exceptions;
+    return exceptions.filter((e: DispenseException) => visibleAccountIds.has(e.account_id));
+  }, [exceptions, visibleAccountIds, isSuperAdmin]);
+
+  // Scoped Overview Stats calculated strictly from filtered accounts & dispenses
+  const scopedOverviewStats = useMemo(() => {
+    if (isSuperAdmin) return overviewStats;
+
+    const totalAllocated = visibleAccounts.reduce((sum: number, a: EnrolledAccount) => sum + (a.allocated_pens || 0), 0);
+    const totalDispensed = visibleDispenses.reduce((sum: number, d: DispenseRecord) => sum + (d.dispensed_qty || 1), 0);
+    const remainingStock = visibleAccounts.reduce((sum: number, a: EnrolledAccount) => sum + (a.current_balance || 0), 0);
+
+    const patientKeys = new Set<string>();
+    visibleDispenses.forEach((d: DispenseRecord) => {
+      const key = (d.national_id && d.national_id.trim()) || (d.patient_phone && d.patient_phone.trim()) || d.patient_name;
+      if (key) patientKeys.add(key);
+    });
+    const patientsServed = patientKeys.size;
+
+    const trendMap: Record<string, number> = {};
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      const key = d.toLocaleDateString("ar-EG", { month: "numeric", day: "numeric" });
+      trendMap[key] = 0;
+    }
+
+    visibleDispenses.forEach((d: DispenseRecord) => {
+      const dateKey = new Date(d.created_at).toLocaleDateString("ar-EG", { month: "numeric", day: "numeric" });
+      if (trendMap[dateKey] !== undefined) {
+        trendMap[dateKey] += d.dispensed_qty || 1;
+      }
+    });
+
+    const chartData = Object.entries(trendMap).map(([date, pens]) => ({
+      date,
+      pens,
+    }));
+
+    const accStats: Record<string, { name: string; type: string; pens: number }> = {};
+    visibleAccounts.forEach((a: EnrolledAccount) => {
+      accStats[a.account_id] = { name: a.account_name, type: a.account_type, pens: a.dispensed_count || 0 };
+    });
+
+    const topAccounts = Object.values(accStats)
+      .sort((a, b) => b.pens - a.pens)
+      .slice(0, 5);
+
+    return {
+      totalAllocated,
+      totalDispensed,
+      remainingStock,
+      patientsServed,
+      chartData,
+      topAccounts,
+    };
+  }, [visibleAccounts, visibleDispenses, isSuperAdmin, overviewStats]);
+
   const pendingRequestsCount =
-    stockRequests.filter((r) => r.status === "pending").length +
-    exceptions.filter((e) => e.admin_status === "pending").length;
+    visibleStockRequests.filter((r: StockRequest) => r.status === "pending").length +
+    visibleExceptions.filter((e: DispenseException) => e.admin_status === "pending").length;
 
   const getPortalUrl = () => {
     const base = window.location.origin + window.location.pathname;
@@ -278,6 +379,19 @@ function AdminManagementPortal() {
 
           {/* Right Side: Storage Status, Microsoft User Profile & Pharmacy Portal Direct Link */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+            {/* Territory / Bricks Scope Badge & Change Button */}
+            <button
+              type="button"
+              onClick={() => setShowTerritoryEdit(true)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/30 text-[11px] font-bold text-primary transition cursor-pointer"
+              title="اضغط لعرض أو تعديل المناطق والـ Bricks المسندة إليك"
+            >
+              <MapPin className="size-3.5" />
+              <span>
+                {corporateUser.role === "District Manager" ? "DM" : "MR"}: {userBricks.length} Brick{userBricks.length !== 1 ? "s" : ""}
+              </span>
+            </button>
+
             {/* Storage Status Pill */}
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border text-[11px]">
               <span className="size-2 rounded-full bg-emerald-500" />
@@ -364,7 +478,7 @@ function AdminManagementPortal() {
               className="font-bold text-xs gap-1.5 h-8"
             >
               <Users className="size-3.5" />
-              Enrolled Facilities ({accounts.length})
+              Enrolled Facilities ({visibleAccounts.length})
             </Button>
 
             <Button
@@ -374,7 +488,7 @@ function AdminManagementPortal() {
               className="font-bold text-xs gap-1.5 h-8"
             >
               <Eye className="size-3.5" />
-              Dispense Audit Records ({dispenses.length})
+              Dispense Audit Records ({visibleDispenses.length})
             </Button>
 
             <Button
@@ -404,35 +518,58 @@ function AdminManagementPortal() {
           </Button>
         </div>
 
-        {/* TAB CONTENTS */}
+        {/* TAB CONTENTS (Strictly scoped to assigned Bricks) */}
         {adminTab === "overview" && (
-          <PenOverviewTab stats={overviewStats} />
+          <PenOverviewTab stats={scopedOverviewStats} />
         )}
 
         {adminTab === "accounts" && (
           <RepAccountsManagerTab
-            accounts={accounts}
+            accounts={visibleAccounts}
             onRefresh={() => void loadData()}
             repName={corporateUser.displayName || "Field Representative"}
+            assignedBricks={userBricks}
+            userRole={corporateUser.role}
           />
         )}
 
         {adminTab === "dispenses" && (
           <PenDispenseRecordsTab
-            records={dispenses}
+            records={visibleDispenses}
             onRefresh={() => void loadData()}
           />
         )}
 
         {adminTab === "requests" && (
           <PenExceptionsAndStockTab
-            stockRequests={stockRequests}
-            exceptions={exceptions}
+            stockRequests={visibleStockRequests}
+            exceptions={visibleExceptions}
             onRefresh={() => void loadData()}
-            isAdmin={true}
+            isAdmin={corporateUser.role === "District Manager" || isSuperAdmin}
           />
         )}
       </main>
+
+      {/* Territory & Role Selection / Adjustment Modal */}
+      <TerritorySelectionDialog
+        open={showTerritoryEdit}
+        onOpenChange={setShowTerritoryEdit}
+        userEmail={corporateUser.email}
+        userName={corporateUser.displayName}
+        initialRole={corporateUser.role}
+        initialBricks={userBricks}
+        isFirstTime={userBricks.length === 0}
+        onSave={(newRole, newBricks) => {
+          const updated = corporateAuthService.updateUserRoleAndBricks(
+            corporateUser.email,
+            newRole,
+            newBricks
+          );
+          setCorporateUser(updated);
+          setShowTerritoryEdit(false);
+          void loadData();
+        }}
+      />
 
       {/* Global Sonner Toaster */}
       <Toaster position="bottom-right" dir="ltr" richColors />
