@@ -45,7 +45,7 @@ function getRegionEnglishName(rawName: string): string {
   if (rawName.includes("Giza")) return "Giza";
   if (rawName.includes("Alexandria") || rawName.includes("Matrouh")) return "Alexandria & Matrouh";
   if (rawName.includes("Delta")) return "Delta";
-  if (rawName.includes("Upper Egypt") || rawName.includes("الصعيد")) return "Upper Egypt";
+  if (rawName.includes("Upper Egypt")) return "Upper Egypt";
   if (rawName.includes("Canal") || rawName.includes("Sinai")) return "Canal & Sinai";
   return rawName;
 }

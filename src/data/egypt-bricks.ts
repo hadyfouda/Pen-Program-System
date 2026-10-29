@@ -20,7 +20,7 @@ export interface RegionGroup {
 
 export const EGYPT_REGIONS_DATA: RegionGroup[] = [
   {
-    region: "القاهرة (Cairo)",
+    region: "Cairo",
     sectors: [
       { sector: "ABBASEIA", bricks: ["BRICK1 ABBASEIA", "BRICK2 ABBASEIA"] },
       { sector: "CAIRO CENTER", bricks: ["BRICK1 CAIRO CENTER"] },
@@ -44,7 +44,7 @@ export const EGYPT_REGIONS_DATA: RegionGroup[] = [
     ],
   },
   {
-    region: "الجيزة (Giza)",
+    region: "Giza",
     sectors: [
       { sector: "FAISAL", bricks: ["BRICK1 FAISAL", "BRICK2 FAISAL"] },
       { sector: "GUIZA I", bricks: ["BRICK1 GUIZA I", "BRICK2 GUIZA I"] },
@@ -58,7 +58,7 @@ export const EGYPT_REGIONS_DATA: RegionGroup[] = [
     ],
   },
   {
-    region: "الإسكندرية ومطروح (Alexandria & Matrouh)",
+    region: "Alexandria & Matrouh",
     sectors: [
       { sector: "ALEX CENTER I", bricks: ["BRICK1 ALEX CENTER I"] },
       { sector: "ALEX CENTER II", bricks: ["BRICK1 ALEX CENTER II"] },
@@ -70,7 +70,7 @@ export const EGYPT_REGIONS_DATA: RegionGroup[] = [
     ],
   },
   {
-    region: "وجه بحري والدلتا (Delta)",
+    region: "Delta",
     sectors: [
       { sector: "BEHAIRA I", bricks: ["BRICK1 BEHAIRA I"] },
       { sector: "BEHAIRA II", bricks: ["BRICK1 BEHAIRA II", "BRICK2 BEHAIRA II", "BRICK3 BEHAIRA II"] },
@@ -96,7 +96,7 @@ export const EGYPT_REGIONS_DATA: RegionGroup[] = [
     ],
   },
   {
-    region: "الصعيد (Upper Egypt)",
+    region: "Upper Egypt",
     sectors: [
       { sector: "ASSUIT I-N VALLEY", bricks: ["BRICK1 ASSUIT I-N VALLEY", "BRICK2 ASSUIT I-N VALLEY"] },
       { sector: "ASSUIT II", bricks: ["BRICK1 ASSUIT II", "BRICK2 ASSUIT II"] },
@@ -112,7 +112,7 @@ export const EGYPT_REGIONS_DATA: RegionGroup[] = [
     ],
   },
   {
-    region: "القناة وسيناء والبحر الأحمر (Canal & Sinai)",
+    region: "Canal & Sinai",
     sectors: [
       { sector: "ISMAELIA", bricks: ["BRICK1 ISMAELIA"] },
       { sector: "P. SAID-N. SINAI", bricks: ["BRICK1 P. SAID-N. SINAI", "BRICK2 P. SAID-N. SINAI"] },
