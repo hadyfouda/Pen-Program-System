@@ -10,6 +10,7 @@
  */
 
 import { emailDeliveryService, type SendPasscodeResult } from "./email-delivery.service";
+import { supabase } from "./supabase";
 
 export type CorporateRole = "District Manager" | "Medical Rep" | "Program Administrator";
 
@@ -222,18 +223,20 @@ class CorporateAuthService {
   }
 
   /**
-   * Set password for account (first time setup or password reset) and save account
+   * Register a new corporate account directly with Role and Assigned Bricks
+   * Stores directly into Supabase database (with local storage resilience)
    */
-  public async setAccountPassword(
+  public async registerAccount(
     email: string,
     password: string,
     role: CorporateRole = "Medical Rep",
-    assignedBricks: string[] = []
+    assignedBricks: string[] = [],
+    customDisplayName?: string
   ): Promise<CorporateUser> {
     const clean = email.trim().toLowerCase();
 
     if (!clean.endsWith("@evapharma.com")) {
-      throw new Error("Only corporate emails ending with @evapharma.com can register.");
+      throw new Error("Access Denied: Only official corporate emails ending with @evapharma.com can register.");
     }
 
     if (!password || password.length < 6) {
@@ -241,19 +244,43 @@ class CorporateAuthService {
     }
 
     const hashed = await hashPassword(password);
-    const displayName = this.extractDisplayName(clean);
+    const displayName = customDisplayName?.trim() || this.extractDisplayName(clean);
+    const cleanBricks = Array.isArray(assignedBricks) ? assignedBricks : [];
+    const determinedRole: CorporateRole = clean.includes("admin") ? "Program Administrator" : role;
+    const now = new Date().toISOString();
+    const userId = `usr-${clean.replace(/[^a-zA-Z0-9]/g, "_")}`;
+
+    // 1. Sync to Supabase Corporate Users
+    if (supabase) {
+      try {
+        const { error } = await supabase.from("corporate_users").upsert({
+          id: userId,
+          email: clean,
+          display_name: displayName,
+          password_hash: hashed,
+          role: determinedRole,
+          assigned_bricks: cleanBricks,
+          department: "EVA Insulin Pen Program",
+          created_at: now,
+          last_login_at: now,
+        });
+        if (error) {
+          console.warn("[CorporateAuth] Supabase registration warning:", error.message);
+        }
+      } catch (err) {
+        console.warn("[CorporateAuth] Supabase registration network error:", err);
+      }
+    }
+
+    // 2. Persist locally for instant offline fallback
     const accounts = this.getRegisteredAccounts();
     const existingIndex = accounts.findIndex((a) => a.email === clean);
-
-    const now = new Date().toISOString();
-    const determinedRole: CorporateRole = clean.includes("admin") ? "Program Administrator" : role;
-
     const updatedAccount: StoredAccount = {
       email: clean,
       displayName,
       passwordHash: hashed,
       role: determinedRole,
-      assignedBricks: Array.isArray(assignedBricks) ? assignedBricks : [],
+      assignedBricks: cleanBricks,
       department: "EVA Insulin Pen Program",
       createdAt: existingIndex !== -1 ? accounts[existingIndex].createdAt : now,
       lastLoginAt: now,
@@ -264,19 +291,18 @@ class CorporateAuthService {
     } else {
       accounts.push(updatedAccount);
     }
-
     this.saveRegisteredAccounts(accounts);
 
-    // Auto-login after password setup
+    // 3. Set active session
     const user: CorporateUser = {
-      id: `usr-${clean.replace(/[^a-zA-Z0-9]/g, "_")}`,
-      email: updatedAccount.email,
-      displayName: updatedAccount.displayName,
-      role: updatedAccount.role,
-      assignedBricks: updatedAccount.assignedBricks,
-      department: updatedAccount.department,
+      id: userId,
+      email: clean,
+      displayName,
+      role: determinedRole,
+      assignedBricks: cleanBricks,
+      department: "EVA Insulin Pen Program",
       createdAt: updatedAccount.createdAt,
-      lastLoginAt: updatedAccount.lastLoginAt,
+      lastLoginAt: now,
     };
 
     this.setSession(user);
@@ -284,19 +310,81 @@ class CorporateAuthService {
   }
 
   /**
+   * Set password for account (first time setup or password reset) and save account
+   */
+  public async setAccountPassword(
+    email: string,
+    password: string,
+    role: CorporateRole = "Medical Rep",
+    assignedBricks: string[] = []
+  ): Promise<CorporateUser> {
+    return this.registerAccount(email, password, role, assignedBricks);
+  }
+
+  /**
+   * Direct password reset
+   */
+  public async resetPasswordDirect(email: string, newPassword: string): Promise<boolean> {
+    const clean = email.trim().toLowerCase();
+    if (!clean.endsWith("@evapharma.com")) {
+      throw new Error("Only corporate emails ending with @evapharma.com are authorized.");
+    }
+    if (!newPassword || newPassword.length < 6) {
+      throw new Error("Password must be at least 6 characters long.");
+    }
+    const hashed = await hashPassword(newPassword);
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("corporate_users")
+          .update({ password_hash: hashed, last_login_at: new Date().toISOString() })
+          .eq("email", clean);
+      } catch (e) {
+        console.warn("Supabase reset password error:", e);
+      }
+    }
+
+    const accounts = this.getRegisteredAccounts();
+    const idx = accounts.findIndex((a) => a.email === clean);
+    if (idx !== -1) {
+      accounts[idx].passwordHash = hashed;
+      accounts[idx].lastLoginAt = new Date().toISOString();
+      this.saveRegisteredAccounts(accounts);
+    }
+    return true;
+  }
+
+  /**
    * Update User Role and Assigned Bricks
    */
-  public updateUserRoleAndBricks(
+  public async updateUserRoleAndBricks(
     email: string,
     role: CorporateRole,
     assignedBricks: string[]
-  ): CorporateUser {
+  ): Promise<CorporateUser> {
     const clean = email.trim().toLowerCase();
+    const cleanBricks = Array.isArray(assignedBricks) ? assignedBricks : [];
     const accounts = this.getRegisteredAccounts();
     const idx = accounts.findIndex((a) => a.email === clean);
 
-    const cleanBricks = Array.isArray(assignedBricks) ? assignedBricks : [];
+    // 1. Update in Supabase
+    if (supabase) {
+      try {
+        await supabase
+          .from("corporate_users")
+          .update({
+            role,
+            assigned_bricks: cleanBricks,
+            last_login_at: new Date().toISOString(),
+          })
+          .eq("email", clean);
+      } catch (err) {
+        console.warn("[CorporateAuth] Supabase update role error:", err);
+      }
+    }
 
+    // 2. Update local storage
     if (idx !== -1) {
       accounts[idx].role = role;
       accounts[idx].assignedBricks = cleanBricks;
@@ -320,6 +408,7 @@ class CorporateAuthService {
 
   /**
    * Regular Login with Email & Password
+   * Queries Supabase first, with automatic fallback to local storage
    */
   public async loginWithPassword(email: string, password: string): Promise<CorporateUser> {
     const clean = email.trim().toLowerCase();
@@ -328,16 +417,76 @@ class CorporateAuthService {
       throw new Error("Only corporate emails ending with @evapharma.com are authorized.");
     }
 
+    const hashed = await hashPassword(password);
+
+    // 1. Try Supabase Corporate Users Table
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("corporate_users")
+          .select("*")
+          .eq("email", clean)
+          .maybeSingle();
+
+        if (!error && data) {
+          if (data.password_hash === hashed) {
+            // Success via Supabase!
+            try {
+              await supabase
+                .from("corporate_users")
+                .update({ last_login_at: new Date().toISOString() })
+                .eq("email", clean);
+            } catch {}
+
+            const user: CorporateUser = {
+              id: data.id || `usr-${clean.replace(/[^a-zA-Z0-9]/g, "_")}`,
+              email: data.email,
+              displayName: data.display_name || this.extractDisplayName(clean),
+              role: (data.role as CorporateRole) || "Medical Rep",
+              assignedBricks: Array.isArray(data.assigned_bricks) ? data.assigned_bricks : [],
+              department: data.department || "EVA Insulin Pen Program",
+              createdAt: data.created_at || new Date().toISOString(),
+              lastLoginAt: new Date().toISOString(),
+            };
+
+            // Mirror to local storage
+            const accounts = this.getRegisteredAccounts().filter((a) => a.email !== clean);
+            accounts.push({
+              email: clean,
+              displayName: user.displayName,
+              passwordHash: hashed,
+              role: user.role,
+              assignedBricks: user.assignedBricks,
+              department: user.department,
+              createdAt: user.createdAt,
+              lastLoginAt: user.lastLoginAt,
+            });
+            this.saveRegisteredAccounts(accounts);
+
+            this.setSession(user);
+            return user;
+          } else {
+            throw new Error("كلمة المرور غير صحيحة. يرجى التأكد وإعادة المحاولة.");
+          }
+        }
+      } catch (err: any) {
+        if (err?.message?.includes("غير صحيحة")) {
+          throw err;
+        }
+        console.warn("[CorporateAuth] Supabase lookup error, checking local store:", err);
+      }
+    }
+
+    // 2. Local Storage Fallback
     const accounts = this.getRegisteredAccounts();
     const account = accounts.find((a) => a.email === clean);
 
     if (!account) {
-      throw new Error("This corporate email is not registered yet. Please click 'Get Email Passcode' to set up your account.");
+      throw new Error("هذا الإيميل غير مسجل حتى الآن. يرجى الضغط على 'تسجيل حساب جديد' أولاً.");
     }
 
-    const hashed = await hashPassword(password);
     if (account.passwordHash !== hashed) {
-      throw new Error("Incorrect password. Please try again or request an email passcode to reset it.");
+      throw new Error("كلمة المرور غير صحيحة. يرجى التأكد وإعادة المحاولة.");
     }
 
     // Update last login

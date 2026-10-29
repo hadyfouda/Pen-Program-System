@@ -33,6 +33,8 @@ jobs:
       - name: Build application
         run: npm run build
         env:
+          VITE_SUPABASE_URL: "https://sapvrcketihbhtkcpefw.supabase.co"
+          VITE_SUPABASE_ANON_KEY: "sb_publishable_mm5kNX7HBDNv3gH1_FpzSA_XwefaQXO"
           VITE_BREVO_API_KEY: ${{ secrets.VITE_BREVO_API_KEY }}
           VITE_SYSTEM_SENDER_EMAIL: "hadfouda@gmail.com"
           VITE_SYSTEM_SENDER_NAME: "EVA Pharma — Insulin Pen Program"

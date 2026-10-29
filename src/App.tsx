@@ -559,8 +559,8 @@ function AdminManagementPortal() {
         initialRole={corporateUser.role}
         initialBricks={userBricks}
         isFirstTime={userBricks.length === 0}
-        onSave={(newRole, newBricks) => {
-          const updated = corporateAuthService.updateUserRoleAndBricks(
+        onSave={async (newRole, newBricks) => {
+          const updated = await corporateAuthService.updateUserRoleAndBricks(
             corporateUser.email,
             newRole,
             newBricks

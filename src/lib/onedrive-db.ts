@@ -12,6 +12,7 @@ import type {
   PatientHistoryMatch,
   StorageStatus,
 } from "./pen-program.types";
+import { supabase } from "./supabase";
 
 // Configuration from Vite environment variables (or process.env fallback)
 const getEnv = (key: string, defaultVal = ""): string => {
@@ -132,6 +133,35 @@ class OneDriveDatabaseStore {
   // ==========================================
   public async getAccounts(): Promise<EnrolledAccount[]> {
     this.loadFromStorage();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("enrolled_accounts")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && Array.isArray(data) && data.length > 0) {
+          this.accounts = data.map((d: any) => ({
+            account_id: d.account_id,
+            account_type: d.account_type,
+            account_name: d.account_name,
+            specialty: d.specialty || "",
+            territory: d.territory,
+            phone: d.phone,
+            enrolled_by_rep: d.enrolled_by_rep || "",
+            pin_hash: d.pin_hash,
+            raw_pin: d.raw_pin || "",
+            allocated_pens: Number(d.allocated_pens) || 0,
+            dispensed_count: Number(d.dispensed_count) || 0,
+            current_balance: Number(d.current_balance) || 0,
+            status: d.status || "active",
+            created_at: d.created_at,
+          }));
+          this.saveToStorage();
+        }
+      } catch (e) {
+        console.warn("[DB] Supabase getAccounts error:", e);
+      }
+    }
     return [...this.accounts];
   }
 
@@ -179,7 +209,31 @@ class OneDriveDatabaseStore {
     this.accounts.unshift(newAcc);
     this.saveToStorage();
 
-    // Async sync to Excel Online Table: Tbl_Enrolled_Accounts
+    // 1. Sync to Supabase Table: enrolled_accounts
+    if (supabase) {
+      try {
+        await supabase.from("enrolled_accounts").upsert({
+          account_id: newAcc.account_id,
+          account_type: newAcc.account_type,
+          account_name: newAcc.account_name,
+          specialty: newAcc.specialty || "",
+          territory: newAcc.territory,
+          phone: newAcc.phone,
+          enrolled_by_rep: newAcc.enrolled_by_rep || "",
+          pin_hash: newAcc.pin_hash,
+          raw_pin: newAcc.raw_pin || "",
+          allocated_pens: newAcc.allocated_pens,
+          dispensed_count: newAcc.dispensed_count,
+          current_balance: newAcc.current_balance,
+          status: newAcc.status,
+          created_at: newAcc.created_at,
+        });
+      } catch (e) {
+        console.warn("[DB] Supabase addAccount error:", e);
+      }
+    }
+
+    // 2. Async sync to Excel Online Table: Tbl_Enrolled_Accounts
     void this.syncToExcelTable("Tbl_Enrolled_Accounts", [
       newAcc.account_id,
       newAcc.account_type,
@@ -225,6 +279,21 @@ class OneDriveDatabaseStore {
     };
 
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("enrolled_accounts")
+          .update({
+            allocated_pens: newAllocated,
+            current_balance: newBalance,
+          })
+          .eq("account_id", accountId);
+      } catch (e) {
+        console.warn("[DB] Supabase adjustStock error:", e);
+      }
+    }
+
     return true;
   }
 
@@ -243,6 +312,21 @@ class OneDriveDatabaseStore {
     };
 
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("enrolled_accounts")
+          .update({
+            raw_pin: newPin,
+            pin_hash: hashed,
+          })
+          .eq("account_id", accountId);
+      } catch (e) {
+        console.warn("[DB] Supabase resetPin error:", e);
+      }
+    }
+
     return newPin;
   }
 
@@ -251,6 +335,39 @@ class OneDriveDatabaseStore {
   // ==========================================
   public async getDispenses(): Promise<DispenseRecord[]> {
     this.loadFromStorage();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("dispenses")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && Array.isArray(data) && data.length > 0) {
+          this.dispenses = data.map((d: any) => ({
+            record_id: d.record_id,
+            account_id: d.account_id,
+            account_type: d.account_type,
+            account_name: d.account_name,
+            recorded_by: d.recorded_by,
+            prescribing_doctor: d.prescribing_doctor,
+            patient_name: d.patient_name,
+            patient_phone: d.patient_phone,
+            national_id: d.national_id,
+            product_name: d.product_name || "جلارجيفين (Glargivin)",
+            dispensed_qty: Number(d.dispensed_qty) || 1,
+            rx_image_id: d.rx_image_id || "",
+            id_image_id: d.id_image_id || "",
+            consent_image_id: d.consent_image_id || "",
+            status: d.status || "approved",
+            is_exception: Boolean(d.is_exception),
+            notes: d.notes || "",
+            created_at: d.created_at,
+          }));
+          this.saveToStorage();
+        }
+      } catch (e) {
+        console.warn("[DB] Supabase getDispenses warning:", e);
+      }
+    }
     return [...this.dispenses];
   }
 
@@ -326,7 +443,46 @@ class OneDriveDatabaseStore {
     this.dispenses.unshift(newDispense);
     this.saveToStorage();
 
-    // Async sync to Excel Online Table: Tbl_Dispenses
+    // 1. Sync to Supabase Table: dispenses
+    if (supabase) {
+      try {
+        await supabase.from("dispenses").upsert({
+          record_id: newDispense.record_id,
+          account_id: newDispense.account_id,
+          account_type: newDispense.account_type,
+          account_name: newDispense.account_name,
+          recorded_by: newDispense.recorded_by,
+          prescribing_doctor: newDispense.prescribing_doctor,
+          patient_name: newDispense.patient_name,
+          patient_phone: newDispense.patient_phone,
+          national_id: newDispense.national_id,
+          product_name: newDispense.product_name,
+          dispensed_qty: newDispense.dispensed_qty,
+          rx_image_id: newDispense.rx_image_id || "",
+          id_image_id: newDispense.id_image_id || "",
+          consent_image_id: newDispense.consent_image_id || "",
+          status: newDispense.status,
+          is_exception: Boolean(newDispense.is_exception),
+          notes: newDispense.notes || "",
+          created_at: newDispense.created_at,
+        });
+
+        if (accIdx !== -1) {
+          const current = this.accounts[accIdx];
+          await supabase
+            .from("enrolled_accounts")
+            .update({
+              dispensed_count: current.dispensed_count,
+              current_balance: current.current_balance,
+            })
+            .eq("account_id", current.account_id);
+        }
+      } catch (e) {
+        console.warn("[DB] Supabase addDispense warning:", e);
+      }
+    }
+
+    // 2. Async sync to Excel Online Table: Tbl_Dispenses
     void this.syncToExcelTable("Tbl_Dispenses", [
       newDispense.record_id,
       newDispense.created_at,
@@ -354,6 +510,32 @@ class OneDriveDatabaseStore {
   // ==========================================
   public async getStockRequests(): Promise<StockRequest[]> {
     this.loadFromStorage();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("stock_requests")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && Array.isArray(data) && data.length > 0) {
+          this.stockRequests = data.map((r: any) => ({
+            request_id: r.request_id,
+            account_id: r.account_id,
+            account_name: r.account_name,
+            account_type: r.account_type,
+            requested_by: r.requested_by,
+            requested_qty: Number(r.requested_qty) || 20,
+            approved_qty: Number(r.approved_qty) || 0,
+            status: r.status || "pending",
+            notes: r.admin_notes || "",
+            created_at: r.created_at,
+            reviewed_at: r.reviewed_at,
+          }));
+          this.saveToStorage();
+        }
+      } catch (e) {
+        console.warn("[DB] Supabase getStockRequests warning:", e);
+      }
+    }
     return [...this.stockRequests];
   }
 
@@ -372,6 +554,24 @@ class OneDriveDatabaseStore {
 
     this.stockRequests.unshift(newReq);
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase.from("stock_requests").upsert({
+          request_id: newReq.request_id,
+          account_id: newReq.account_id,
+          account_name: newReq.account_name,
+          account_type: newReq.account_type,
+          requested_by: newReq.requested_by,
+          requested_qty: newReq.requested_qty,
+          status: newReq.status,
+          admin_notes: newReq.notes || "",
+          created_at: newReq.created_at,
+        });
+      } catch (e) {
+        console.warn("[DB] Supabase addStockRequest warning:", e);
+      }
+    }
 
     void this.syncToExcelTable("Tbl_Stock_Requests", [
       newReq.request_id,
@@ -420,10 +620,37 @@ class OneDriveDatabaseStore {
           allocated_pens: acc.allocated_pens + qty,
           current_balance: acc.current_balance + qty,
         };
+
+        if (supabase) {
+          try {
+            await supabase
+              .from("enrolled_accounts")
+              .update({
+                allocated_pens: this.accounts[accIdx].allocated_pens,
+                current_balance: this.accounts[accIdx].current_balance,
+              })
+              .eq("account_id", acc.account_id);
+          } catch {}
+        }
       }
     }
 
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("stock_requests")
+          .update({
+            status: action === "approve" ? "approved" : "rejected",
+            admin_notes: adminNotes || request.notes,
+          })
+          .eq("request_id", requestId);
+      } catch (e) {
+        console.warn("[DB] Supabase reviewStockRequest warning:", e);
+      }
+    }
+
     return true;
   }
 
@@ -432,6 +659,36 @@ class OneDriveDatabaseStore {
   // ==========================================
   public async getExceptions(): Promise<DispenseException[]> {
     this.loadFromStorage();
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from("dispense_exceptions")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && Array.isArray(data) && data.length > 0) {
+          this.exceptions = data.map((e: any) => ({
+            exception_id: e.exception_id,
+            account_id: e.account_id,
+            account_name: e.account_name,
+            account_type: e.account_type,
+            patient_name: e.patient_name,
+            patient_phone: e.patient_phone,
+            national_id: e.national_id,
+            prescribing_doctor: e.prescribing_doctor,
+            product_name: e.product_name || "جلارجيفين (Glargivin)",
+            pens_count: Number(e.pens_count) || 1,
+            exception_reason: e.exception_reason,
+            admin_status: e.admin_status || "pending",
+            admin_notes: e.admin_notes || "",
+            created_at: e.created_at,
+            fulfilled_at: e.fulfilled_at,
+          }));
+          this.saveToStorage();
+        }
+      } catch (e) {
+        console.warn("[DB] Supabase getExceptions warning:", e);
+      }
+    }
     return [...this.exceptions];
   }
 
@@ -451,6 +708,29 @@ class OneDriveDatabaseStore {
 
     this.exceptions.unshift(newExc);
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase.from("dispense_exceptions").upsert({
+          exception_id: newExc.exception_id,
+          account_id: newExc.account_id,
+          account_name: newExc.account_name,
+          account_type: newExc.account_type,
+          patient_name: newExc.patient_name,
+          patient_phone: newExc.patient_phone,
+          national_id: newExc.national_id,
+          prescribing_doctor: newExc.prescribing_doctor,
+          product_name: newExc.product_name,
+          pens_count: newExc.pens_count,
+          exception_reason: newExc.exception_reason,
+          admin_status: newExc.admin_status,
+          admin_notes: newExc.admin_notes || "",
+          created_at: newExc.created_at,
+        });
+      } catch (e) {
+        console.warn("[DB] Supabase addException warning:", e);
+      }
+    }
 
     void this.syncToExcelTable("Tbl_Exceptions", [
       newExc.exception_id,
@@ -488,6 +768,21 @@ class OneDriveDatabaseStore {
     };
 
     this.saveToStorage();
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("dispense_exceptions")
+          .update({
+            admin_status: action === "approve" ? "approved" : "rejected",
+            admin_notes: adminNotes || this.exceptions[idx].admin_notes,
+          })
+          .eq("exception_id", exceptionId);
+      } catch (e) {
+        console.warn("[DB] Supabase reviewException warning:", e);
+      }
+    }
+
     return true;
   }
 
@@ -515,6 +810,18 @@ class OneDriveDatabaseStore {
       admin_status: "fulfilled",
       fulfilled_at: new Date().toISOString(),
     };
+
+    if (supabase) {
+      try {
+        await supabase
+          .from("dispense_exceptions")
+          .update({
+            admin_status: "fulfilled",
+            fulfilled_at: this.exceptions[idx].fulfilled_at,
+          })
+          .eq("exception_id", exceptionId);
+      } catch {}
+    }
 
     // Create dispense record
     const record = await this.addDispense({
