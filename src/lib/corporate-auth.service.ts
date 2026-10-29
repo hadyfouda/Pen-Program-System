@@ -466,11 +466,11 @@ class CorporateAuthService {
             this.setSession(user);
             return user;
           } else {
-            throw new Error("كلمة المرور غير صحيحة. يرجى التأكد وإعادة المحاولة.");
+            throw new Error("Incorrect password. Please check your credentials and try again.");
           }
         }
       } catch (err: any) {
-        if (err?.message?.includes("غير صحيحة")) {
+        if (err?.message?.includes("Incorrect password") || err?.message?.includes("غير صحيحة")) {
           throw err;
         }
         console.warn("[CorporateAuth] Supabase lookup error, checking local store:", err);
@@ -482,11 +482,11 @@ class CorporateAuthService {
     const account = accounts.find((a) => a.email === clean);
 
     if (!account) {
-      throw new Error("هذا الإيميل غير مسجل حتى الآن. يرجى الضغط على 'تسجيل حساب جديد' أولاً.");
+      throw new Error("This corporate email is not registered yet. Please click 'Register New Account' to set up your profile.");
     }
 
     if (account.passwordHash !== hashed) {
-      throw new Error("كلمة المرور غير صحيحة. يرجى التأكد وإعادة المحاولة.");
+      throw new Error("Incorrect password. Please check your credentials and try again.");
     }
 
     // Update last login

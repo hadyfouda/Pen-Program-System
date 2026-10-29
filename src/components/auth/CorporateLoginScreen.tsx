@@ -23,7 +23,6 @@ import {
   EyeOff,
   UserPlus,
   ShieldCheck,
-  Check,
   MapPin,
   RotateCcw,
 } from "lucide-react";
@@ -68,7 +67,7 @@ export function CorporateLoginScreen({
     }
 
     if (!password) {
-      setError("يرجى إدخال كلمة المرور");
+      setError("Please enter your account password.");
       return;
     }
 
@@ -83,11 +82,11 @@ export function CorporateLoginScreen({
         setShowTerritoryDialog(true);
         return;
       }
-      toast.success(`مرحباً بك مجدداً، ${user.displayName}`);
+      toast.success(`Welcome back, ${user.displayName}`);
       onSuccess(user);
     } catch (err: any) {
-      setError(err?.message || "بيانات الدخول غير صحيحة");
-      toast.error(err?.message || "فشل تسجيل الدخول");
+      setError(err?.message || "Invalid email or password.");
+      toast.error(err?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -100,17 +99,17 @@ export function CorporateLoginScreen({
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail.endsWith("@evapharma.com")) {
-      setError("البريد الإلكتروني يجب أن ينتهي بـ @evapharma.com حصراً.");
+      setError("Corporate email must end with @evapharma.com.");
       return;
     }
 
     if (!password || password.length < 6) {
-      setError("كلمة المرور يجب أن لا تقل عن 6 أحرف أو أرقام.");
+      setError("Password must be at least 6 characters long.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("كلمتا المرور غير متطابقتين. يرجى إعادة التأكد.");
+      setError("Passwords do not match. Please re-enter.");
       return;
     }
 
@@ -131,7 +130,7 @@ export function CorporateLoginScreen({
           customName
         );
         setShowTerritoryDialog(false);
-        toast.success(`تم إنشاء الحساب بنجاح! أهلاً بك يا ${user.displayName}`);
+        toast.success(`Account registered successfully! Welcome, ${user.displayName}`);
         onSuccess(user);
       } else if (pendingUser) {
         const user = await corporateAuthService.updateUserRoleAndBricks(
@@ -140,12 +139,12 @@ export function CorporateLoginScreen({
           assignedBricks
         );
         setShowTerritoryDialog(false);
-        toast.success(`تم تحديث الصلاحيات والمناطق بنجاح! مرحباً بك يا ${user.displayName}`);
+        toast.success(`Role and territories updated! Welcome back, ${user.displayName}`);
         onSuccess(user);
       }
     } catch (err: any) {
-      setError(err?.message || "حدث خطأ أثناء حفظ الحساب");
-      toast.error(err?.message || "فشل حفظ الحساب");
+      setError(err?.message || "An error occurred while saving your account.");
+      toast.error(err?.message || "Failed to save account");
     } finally {
       setLoading(false);
     }
@@ -158,30 +157,30 @@ export function CorporateLoginScreen({
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail.endsWith("@evapharma.com")) {
-      setError("البريد الإلكتروني يجب أن ينتهي بـ @evapharma.com");
+      setError("Corporate email must end with @evapharma.com.");
       return;
     }
 
     if (!password || password.length < 6) {
-      setError("كلمة المرور الجديدة يجب أن لا تقل عن 6 أحرف.");
+      setError("New password must be at least 6 characters long.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("كلمتا المرور غير متطابقتين.");
+      setError("Passwords do not match. Please re-enter.");
       return;
     }
 
     setLoading(true);
     try {
       await corporateAuthService.resetPasswordDirect(cleanEmail, password);
-      toast.success("تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول مباشرة.");
+      toast.success("Password updated successfully! You can now sign in directly.");
       setMode("LOGIN");
       setPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      setError(err?.message || "فشل تحديث كلمة المرور");
-      toast.error(err?.message || "خطأ");
+      setError(err?.message || "Failed to update password.");
+      toast.error(err?.message || "Error");
     } finally {
       setLoading(false);
     }
@@ -204,7 +203,7 @@ export function CorporateLoginScreen({
           variant="ghost"
           size="sm"
           onClick={onOpenPharmacyPortal}
-          className="text-xs font-semibold gap-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60"
+          className="text-xs font-semibold gap-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 cursor-pointer"
         >
           <Building2 className="size-3.5 text-primary" />
           <span>Pharmacy & Clinic Station</span>
@@ -228,7 +227,7 @@ export function CorporateLoginScreen({
               Pen Program Management Portal
             </h1>
             <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
-              بوابة مندوبي الدعاية ومديري المناطق لمتابعة الصيدليات وأقلام الأنسولين
+              Secure authentication for Medical Representatives & District Managers
             </p>
           </div>
         </div>
@@ -240,10 +239,10 @@ export function CorporateLoginScreen({
             <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
               <ShieldCheck className="size-4 text-primary" />
               {mode === "LOGIN"
-                ? "تسجيل دخول الموظفين"
+                ? "Staff Sign In"
                 : mode === "REGISTER"
-                ? "تسجيل حساب جديد (MR / DM)"
-                : "إعادة تعيين كلمة المرور"}
+                ? "New Registration (MR / DM)"
+                : "Reset Password"}
             </span>
             <Badge variant="outline" className="text-[9px] text-emerald-600 bg-emerald-500/10 border-emerald-500/20 font-bold">
               @evapharma.com Only
@@ -258,13 +257,13 @@ export function CorporateLoginScreen({
                 setMode("LOGIN");
                 setError(null);
               }}
-              className={`py-2 rounded-lg transition-all text-center ${
+              className={`py-2 rounded-lg transition-all text-center cursor-pointer ${
                 mode === "LOGIN"
                   ? "bg-card text-foreground shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              تسجيل الدخول
+              Sign In
             </button>
             <button
               type="button"
@@ -272,13 +271,13 @@ export function CorporateLoginScreen({
                 setMode("REGISTER");
                 setError(null);
               }}
-              className={`py-2 rounded-lg transition-all text-center ${
+              className={`py-2 rounded-lg transition-all text-center cursor-pointer ${
                 mode === "REGISTER"
                   ? "bg-card text-primary shadow-xs font-bold"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              حساب جديد (تسجيل أول مرة)
+              New Account (Register)
             </button>
           </div>
 
@@ -287,7 +286,7 @@ export function CorporateLoginScreen({
             <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/25 text-destructive text-xs space-y-1">
               <div className="flex items-center gap-1.5 font-bold">
                 <AlertCircle className="size-4 shrink-0" />
-                <span>تنبيه الدخول</span>
+                <span>Authentication Notice</span>
               </div>
               <p className="text-[11px] leading-relaxed">{error}</p>
             </div>
@@ -300,7 +299,7 @@ export function CorporateLoginScreen({
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  البريد الإلكتروني للشركة (@evapharma.com) *
+                  Corporate Email Address (@evapharma.com) *
                 </Label>
                 <div className="relative">
                   <Input
@@ -322,7 +321,7 @@ export function CorporateLoginScreen({
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-semibold text-foreground">
-                    كلمة المرور *
+                    Password *
                   </Label>
                   <button
                     type="button"
@@ -330,9 +329,9 @@ export function CorporateLoginScreen({
                       setMode("RESET_PASSWORD");
                       setError(null);
                     }}
-                    className="text-[10px] text-primary hover:underline font-medium"
+                    className="text-[10px] text-primary hover:underline font-medium cursor-pointer"
                   >
-                    نسيت كلمة المرور؟
+                    Forgot password?
                   </button>
                 </div>
                 <div className="relative">
@@ -351,7 +350,7 @@ export function CorporateLoginScreen({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-3.5 text-muted-foreground hover:text-foreground"
+                    className="absolute right-2.5 top-3.5 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                   </button>
@@ -364,7 +363,7 @@ export function CorporateLoginScreen({
                 className="w-full h-11 text-xs sm:text-sm font-bold gap-2 shadow-sm cursor-pointer"
               >
                 <Lock className="size-4" />
-                {loading ? "جاري التحقق من الحساب..." : "تسجيل الدخول للمنظومة"}
+                {loading ? "Authenticating..." : "Sign In to Pen Program"}
               </Button>
 
               <div className="pt-2 text-center border-t">
@@ -374,10 +373,10 @@ export function CorporateLoginScreen({
                     setMode("REGISTER");
                     setError(null);
                   }}
-                  className="text-xs text-primary font-semibold hover:underline flex items-center justify-center gap-1 mx-auto"
+                  className="text-xs text-primary font-semibold hover:underline flex items-center justify-center gap-1 mx-auto cursor-pointer"
                 >
                   <UserPlus className="size-3.5" />
-                  <span>أول مرة تسجل دخولك؟ اضغط لإنشاء حسابك وتحديد منطقتك ➔</span>
+                  <span>First time signing in? Click here to register & assign territory ➔</span>
                 </button>
               </div>
             </form>
@@ -391,16 +390,16 @@ export function CorporateLoginScreen({
               <div className="p-3 rounded-xl bg-primary/5 border border-primary/15 text-xs space-y-1">
                 <span className="font-bold text-foreground flex items-center gap-1.5">
                   <UserPlus className="size-3.5 text-primary" />
-                  تسجيل حساب جديد لمندوبي ومديري إيفا فارما:
+                  New Account Registration (EVA Pharma Medical Staff):
                 </span>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  أدخل بريدك الرسمي وكلمة المرور، ثم ستختار وظيفتك (MR أو DM) وتحدد مناطق عملك (Bricks) المسئول عنها لتظهر لك وحدك.
+                  Enter your corporate email and password. In the next step, you will choose your role (Medical Rep or District Manager) and select your assigned bricks.
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  البريد الإلكتروني الرسمي (@evapharma.com) *
+                  Official Corporate Email (@evapharma.com) *
                 </Label>
                 <div className="relative">
                   <Input
@@ -421,11 +420,11 @@ export function CorporateLoginScreen({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  الاسم الكامل (اختياري)
+                  Full Name (Optional)
                 </Label>
                 <Input
                   type="text"
-                  placeholder="مثال: د. أحمد محمد"
+                  placeholder="e.g. Dr. Ahmed Mohamed"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                   className="text-xs h-10"
@@ -435,7 +434,7 @@ export function CorporateLoginScreen({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-foreground">
-                    كلمة المرور (6+ خانات) *
+                    Password (Min. 6 chars) *
                   </Label>
                   <div className="relative">
                     <Input
@@ -453,7 +452,7 @@ export function CorporateLoginScreen({
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-3 text-muted-foreground hover:text-foreground"
+                      className="absolute right-2 top-3 text-muted-foreground hover:text-foreground cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
                     </button>
@@ -462,7 +461,7 @@ export function CorporateLoginScreen({
 
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-foreground">
-                    تأكيد كلمة المرور *
+                    Confirm Password *
                   </Label>
                   <div className="relative">
                     <Input
@@ -486,7 +485,7 @@ export function CorporateLoginScreen({
                 className="w-full h-11 text-xs sm:text-sm font-bold gap-2 shadow-sm cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <MapPin className="size-4" />
-                <span>متابعة لاختيار الرتبة والمناطق (Bricks) ➔</span>
+                <span>Continue to Select Role & Bricks ➔</span>
               </Button>
 
               <div className="pt-2 text-center border-t">
@@ -496,9 +495,9 @@ export function CorporateLoginScreen({
                     setMode("LOGIN");
                     setError(null);
                   }}
-                  className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                  className="text-xs text-muted-foreground hover:text-foreground font-medium cursor-pointer"
                 >
-                  ← لديك حساب بالفعل؟ العودة لتسجيل الدخول
+                  ← Already have an account? Back to Sign In
                 </button>
               </div>
             </form>
@@ -512,16 +511,16 @@ export function CorporateLoginScreen({
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1 text-amber-900 dark:text-amber-200">
                 <span className="font-bold flex items-center gap-1.5">
                   <RotateCcw className="size-3.5 text-amber-600" />
-                  إعادة تعيين كلمة المرور:
+                  Reset Account Password:
                 </span>
                 <p className="text-[11px] leading-relaxed">
-                  أدخل بريدك الرسمي المسجل مسبقاً، واكتب كلمة المرور الجديدة لتحديثها فوراً.
+                  Enter your registered corporate email and your new password to update your account immediately.
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  البريد الإلكتروني الرسمي (@evapharma.com) *
+                  Official Corporate Email (@evapharma.com) *
                 </Label>
                 <div className="relative">
                   <Input
@@ -542,7 +541,7 @@ export function CorporateLoginScreen({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  كلمة المرور الجديدة *
+                  New Password (Min. 6 chars) *
                 </Label>
                 <div className="relative">
                   <Input
@@ -557,7 +556,7 @@ export function CorporateLoginScreen({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-3.5 text-muted-foreground hover:text-foreground"
+                    className="absolute right-2.5 top-3.5 text-muted-foreground hover:text-foreground cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
                   </button>
@@ -566,7 +565,7 @@ export function CorporateLoginScreen({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  تأكيد كلمة المرور الجديدة *
+                  Confirm New Password *
                 </Label>
                 <div className="relative">
                   <Input
@@ -587,7 +586,7 @@ export function CorporateLoginScreen({
                 className="w-full h-11 text-xs sm:text-sm font-bold gap-2 shadow-sm cursor-pointer bg-amber-600 hover:bg-amber-700 text-white"
               >
                 <CheckCircle2 className="size-4" />
-                {loading ? "جاري التحديث..." : "تحديث كلمة المرور والدخول"}
+                {loading ? "Updating Password..." : "Update Password & Sign In"}
               </Button>
 
               <div className="pt-2 text-center border-t">
@@ -597,9 +596,9 @@ export function CorporateLoginScreen({
                     setMode("LOGIN");
                     setError(null);
                   }}
-                  className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                  className="text-xs text-muted-foreground hover:text-foreground font-medium cursor-pointer"
                 >
-                  ← العودة لشاشة تسجيل الدخول
+                  ← Back to Sign In
                 </button>
               </div>
             </form>
@@ -609,7 +608,7 @@ export function CorporateLoginScreen({
           <div className="pt-2 border-t text-center space-y-1">
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
               <ShieldCheck className="size-3.5 text-emerald-500" />
-              <span>قاعدة بيانات سحابية مركزية (Supabase) • تشفير آمن لكلمات المرور</span>
+              <span>Central Cloud Database (Supabase) • Secure Hashed Passwords</span>
             </div>
           </div>
         </div>
