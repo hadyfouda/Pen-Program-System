@@ -194,9 +194,6 @@ export function CorporateLoginScreen({
           <Badge variant="outline" className="text-[10px] border-primary/30 text-primary bg-primary/5 font-bold">
             EVA Pharma Corporate
           </Badge>
-          <span className="text-[11px] text-muted-foreground hidden sm:inline">
-            Medical Reps & District Managers Portal
-          </span>
         </div>
 
         <Button
@@ -226,29 +223,11 @@ export function CorporateLoginScreen({
             <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
               Pen Program Management Portal
             </h1>
-            <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
-              Secure authentication for Medical Representatives & District Managers
-            </p>
           </div>
         </div>
 
         {/* Card Box */}
         <div className="p-6 sm:p-8 rounded-3xl border bg-card shadow-xl space-y-5">
-          {/* Header Title & Mode Switcher */}
-          <div className="flex items-center justify-between pb-2 border-b">
-            <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
-              <ShieldCheck className="size-4 text-primary" />
-              {mode === "LOGIN"
-                ? "Staff Sign In"
-                : mode === "REGISTER"
-                ? "New Registration (MR / DM)"
-                : "Reset Password"}
-            </span>
-            <Badge variant="outline" className="text-[9px] text-emerald-600 bg-emerald-500/10 border-emerald-500/20 font-bold">
-              @evapharma.com Only
-            </Badge>
-          </div>
-
           {/* Mode Switch Tabs */}
           <div className="grid grid-cols-2 p-1 bg-muted/60 rounded-xl text-xs font-semibold">
             <button
@@ -299,7 +278,7 @@ export function CorporateLoginScreen({
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  Corporate Email Address (@evapharma.com) *
+                  Corporate Email Address *
                 </Label>
                 <div className="relative">
                   <Input
@@ -399,7 +378,7 @@ export function CorporateLoginScreen({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  Official Corporate Email (@evapharma.com) *
+                  Official Corporate Email *
                 </Label>
                 <div className="relative">
                   <Input
@@ -520,7 +499,7 @@ export function CorporateLoginScreen({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground">
-                  Official Corporate Email (@evapharma.com) *
+                  Official Corporate Email *
                 </Label>
                 <div className="relative">
                   <Input
@@ -603,14 +582,6 @@ export function CorporateLoginScreen({
               </div>
             </form>
           )}
-
-          {/* Bottom Security Notice */}
-          <div className="pt-2 border-t text-center space-y-1">
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-              <ShieldCheck className="size-3.5 text-emerald-500" />
-              <span>Central Cloud Database (Supabase) • Secure Hashed Passwords</span>
-            </div>
-          </div>
         </div>
       </div>
 

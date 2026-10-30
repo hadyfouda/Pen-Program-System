@@ -444,7 +444,7 @@ export function TerritorySelectionDialog({
         <div className="pt-3 border-t flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="text-xs text-muted-foreground flex items-center gap-1.5">
             <ShieldAlert className="size-4 text-emerald-600 shrink-0" />
-            <span>Facilities and pens outside these assigned territories will be completely hidden from your view.</span>
+            <span>Accounts and pens outside these assigned territories will be completely hidden from your view.</span>
           </div>
 
           <Button

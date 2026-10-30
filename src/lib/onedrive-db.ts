@@ -799,7 +799,7 @@ class OneDriveDatabaseStore {
 
     // Check account balance
     const acc = this.accounts.find((a) => a.account_id === exc.account_id);
-    if (!acc) throw new Error("Dispensing facility not found");
+    if (!acc) throw new Error("Dispensing account not found");
     if (acc.current_balance < exc.pens_count) {
       throw new Error(`Available stock balance (${acc.current_balance} pens) is insufficient to dispense ${exc.pens_count} pens`);
     }

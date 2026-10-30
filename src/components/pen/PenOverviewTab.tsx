@@ -48,7 +48,7 @@ export function PenOverviewTab({ stats }: PenOverviewTabProps) {
       color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     },
     {
-      label: "Remaining Stock at Facilities",
+      label: "Remaining Stock at Accounts",
       value: stats.remainingStock,
       subtext: "Available for immediate dispensing",
       icon: AlertCircle,
@@ -158,7 +158,7 @@ export function PenOverviewTab({ stats }: PenOverviewTabProps) {
             <div className="flex items-center gap-2">
               <TrendingUp className="size-5 text-emerald-500" />
               <h3 className="text-xs sm:text-sm font-bold text-foreground">
-                Top Dispensing Facilities
+                Top Dispensing Accounts
               </h3>
             </div>
             <span className="text-[10px] text-muted-foreground">Most Active</span>
@@ -167,7 +167,7 @@ export function PenOverviewTab({ stats }: PenOverviewTabProps) {
           {stats.topAccounts.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground text-xs space-y-1">
               <Building2 className="size-8 mx-auto opacity-40" />
-              <span className="block font-semibold">No active facilities yet</span>
+              <span className="block font-semibold">No active accounts yet</span>
               <span className="text-[10px]">Rankings will display once dispensing starts.</span>
             </div>
           ) : (

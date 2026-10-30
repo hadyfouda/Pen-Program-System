@@ -175,13 +175,13 @@ export function RepAccountsManagerTab({
 
   const handleExportAccountsCSV = () => {
     if (accounts.length === 0) {
-      toast.error("No enrolled facilities to export");
+      toast.error("No enrolled accounts to export");
       return;
     }
 
     const headers = [
       "Account ID",
-      "Facility Name",
+      "Account Name",
       "Type",
       "Specialty",
       "Territory",
@@ -214,10 +214,10 @@ export function RepAccountsManagerTab({
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `EVA_Enrolled_Facilities_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `EVA_Enrolled_Accounts_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success("Enrolled facilities exported to Excel (CSV) successfully");
+    toast.success("Enrolled accounts exported to Excel (CSV) successfully");
   };
 
   return (
@@ -227,11 +227,8 @@ export function RepAccountsManagerTab({
         <div>
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             <Users className="size-5 text-primary" />
-            Enrolled Facilities & Stock Management
+            Enrolled Accounts & Stock Management
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Manage participating doctors, clinics, and pharmacies, allocate stock quotas, and dispatch secure access PINs
-          </p>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
@@ -259,10 +256,10 @@ export function RepAccountsManagerTab({
 
           <Button
             onClick={() => setIsEnrollOpen(true)}
-            className="font-bold gap-2 text-xs h-9 shadow-sm"
+            className="font-bold gap-2 text-xs h-9 shadow-sm cursor-pointer"
           >
             <Plus className="size-4" />
-            Enroll New Facility
+            Enroll New Account
           </Button>
 
           <Button
@@ -284,7 +281,7 @@ export function RepAccountsManagerTab({
           <div className="relative">
             <Search className="size-4 text-muted-foreground absolute left-3 top-2.5" />
             <Input
-              placeholder="Search by facility name, specialty, or phone..."
+              placeholder="Search by account name, specialty, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="text-xs pl-9 h-9"
@@ -349,7 +346,7 @@ export function RepAccountsManagerTab({
         {/* Type Filter Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t">
           {[
-            { id: "all", label: "All Facilities", count: accounts.length },
+            { id: "all", label: "All Accounts", count: accounts.length },
             {
               id: "private_clinic",
               label: "Private Clinics",
@@ -390,21 +387,18 @@ export function RepAccountsManagerTab({
           <div className="size-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
             <Users className="size-7" />
           </div>
-          <h3 className="text-base font-bold text-foreground">No facilities enrolled yet</h3>
-          <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
-            The system is clean with no mock data. Start by enrolling a participating doctor's clinic or pharmacy to allocate initial pen stock and generate their PIN.
-          </p>
+          <h3 className="text-base font-bold text-foreground">No accounts enrolled yet</h3>
           <Button
             onClick={() => setIsEnrollOpen(true)}
-            className="font-bold gap-2 text-xs mt-2"
+            className="font-bold gap-2 text-xs mt-2 cursor-pointer"
           >
             <Plus className="size-4" />
-            Enroll First Facility
+            Enroll First Account
           </Button>
         </div>
       ) : filteredAccounts.length === 0 ? (
         <div className="p-8 text-center text-muted-foreground text-xs rounded-xl border bg-card">
-          No facilities matched the current filter criteria.
+          No accounts matched the current filter criteria.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">

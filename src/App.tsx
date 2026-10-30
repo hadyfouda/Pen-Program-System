@@ -152,7 +152,7 @@ function StandalonePharmacyPortal() {
 
 /* ==================================================================== */
 /*  MANAGEMENT & FIELD REP PORTAL                                       */
-/*  Comprehensive admin analytics, enrolled facilities & verification    */
+/*  Comprehensive admin analytics, enrolled accounts & verification    */
 /* ==================================================================== */
 function AdminManagementPortal() {
   // Corporate User Authentication Session
@@ -359,47 +359,15 @@ function AdminManagementPortal() {
               />
             </div>
             <div className="border-l border-border pl-3">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xs sm:text-sm font-black text-foreground tracking-tight flex items-center gap-1.5">
-                  <Syringe className="size-4 text-primary shrink-0" />
-                  EVA Insulin Pen Program
-                </h1>
-                <Badge
-                  variant="outline"
-                  className="hidden md:inline-flex border-primary/30 text-primary bg-primary/5 text-[9px] font-bold"
-                >
-                  Management & Field Rep Portal
-                </Badge>
-              </div>
-              <p className="text-[10px] text-muted-foreground hidden sm:block">
-                Patient Support, Inventory Governance & Microsoft 365 Cloud Integration
-              </p>
+              <h1 className="text-xs sm:text-sm font-black text-foreground tracking-tight flex items-center gap-1.5">
+                <Syringe className="size-4 text-primary shrink-0" />
+                EVA Insulin Pen Program
+              </h1>
             </div>
           </div>
 
-          {/* Right Side: Storage Status, Microsoft User Profile & Pharmacy Portal Direct Link */}
+          {/* Right Side: Corporate User Profile & Pharmacy Portal Direct Link */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
-            {/* Territory / Bricks Scope Badge & Change Button */}
-            <button
-              type="button"
-              onClick={() => setShowTerritoryEdit(true)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/30 text-[11px] font-bold text-primary transition cursor-pointer"
-              title="اضغط لعرض أو تعديل المناطق والـ Bricks المسندة إليك"
-            >
-              <MapPin className="size-3.5" />
-              <span>
-                {corporateUser.role === "District Manager" ? "DM" : "MR"}: {userBricks.length} Brick{userBricks.length !== 1 ? "s" : ""}
-              </span>
-            </button>
-
-            {/* Storage Status Pill */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/60 border text-[11px]">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-foreground">
-                Database Active
-              </span>
-            </div>
-
             {/* Corporate Signed-In User Pill & Sign Out */}
             <div className="flex items-center gap-1.5 bg-muted/40 pl-2 pr-1 py-0.5 rounded-full border">
               <div className="flex items-center gap-1.5">
@@ -478,7 +446,7 @@ function AdminManagementPortal() {
               className="font-bold text-xs gap-1.5 h-8"
             >
               <Users className="size-3.5" />
-              Enrolled Facilities ({visibleAccounts.length})
+              Enrolled Accounts ({visibleAccounts.length})
             </Button>
 
             <Button

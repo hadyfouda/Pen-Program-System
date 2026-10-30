@@ -83,7 +83,7 @@ export function PenExceptionsAndStockTab({
       );
       toast.success(
         action === "approve"
-          ? `Patient exception approved for "${activeException.patient_name}". The facility can now dispense the pen.`
+          ? `Patient exception approved for "${activeException.patient_name}". The account can now dispense the pen.`
           : "Exception request rejected."
       );
       setActiveException(null);
@@ -114,7 +114,6 @@ export function PenExceptionsAndStockTab({
               </Badge>
             )}
           </div>
-          <span className="text-[11px] text-muted-foreground font-mono">Excel: Tbl_Stock_Requests</span>
         </div>
 
         {stockRequests.length === 0 ? (
@@ -225,7 +224,6 @@ export function PenExceptionsAndStockTab({
               </Badge>
             )}
           </div>
-          <span className="text-[11px] text-muted-foreground font-mono">Excel: Tbl_Exceptions</span>
         </div>
 
         {exceptions.length === 0 ? (
@@ -247,7 +245,7 @@ export function PenExceptionsAndStockTab({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h4 className="font-bold text-xs text-foreground">{exc.patient_name || exc.account_name}</h4>
-                      <span className="text-[10px] text-muted-foreground font-mono">{exc.exception_id} • Facility: {exc.account_name}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">{exc.exception_id} • Account: {exc.account_name}</span>
                     </div>
 
                     <Badge

@@ -132,7 +132,7 @@ export function EnrollAccountModal({
       onSuccess(newAcc);
       toast.success(`Enrolled "${accountName}" with an initial quota of ${allocatedPens} pens`);
     } catch {
-      toast.error("An error occurred while saving facility data");
+      toast.error("An error occurred while saving account data");
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export function EnrollAccountModal({
     const base = window.location.origin + window.location.pathname;
     const portalUrl = `${base.replace(/\/$/, "")}?portal=true`;
 
-    const msg = `Dear ${createdAccount.account_name},\n\nYour facility has been successfully enrolled in the EVA Insulin Pen Program.\n\n🔑 Secure Access PIN: *${createdAccount.raw_pin || pin}*\n📦 Initial Pen Stock: *${createdAccount.allocated_pens} Pens*\n\n🌐 Dedicated Dispensing Station Portal:\n${portalUrl}\n\nYou may log in using your 6-digit PIN to record patient dispensations and request stock replenishment.`;
+    const msg = `Dear ${createdAccount.account_name},\n\nYour account has been successfully enrolled in the EVA Insulin Pen Program.\n\n🔑 Secure Access PIN: *${createdAccount.raw_pin || pin}*\n📦 Initial Pen Stock: *${createdAccount.allocated_pens} Pens*\n\n🌐 Dedicated Dispensing Station Portal:\n${portalUrl}\n\nYou may log in using your 6-digit PIN to record patient dispensations and request stock replenishment.`;
 
     const cleanPhone = createdAccount.phone.replace(/[^0-9]/g, "");
     const formattedPhone = cleanPhone.startsWith("01") ? `2${cleanPhone}` : cleanPhone;
@@ -165,7 +165,7 @@ export function EnrollAccountModal({
         <div className="size-12 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center">
           <Check className="size-6" />
         </div>
-        <h3 className="font-bold text-base text-foreground">Facility Enrolled Successfully!</h3>
+        <h3 className="font-bold text-base text-foreground">Account Enrolled Successfully!</h3>
         <p className="text-xs text-muted-foreground">
           Initial stock allocation of <span className="font-bold text-foreground">{createdAccount.allocated_pens} pens</span> assigned to:
         </p>
@@ -207,7 +207,7 @@ export function EnrollAccountModal({
             onClick={handleReset}
             className="text-xs font-semibold"
           >
-            + Enroll Another Facility
+            + Enroll Another Account
           </Button>
           <Button
             type="button"
@@ -226,7 +226,7 @@ export function EnrollAccountModal({
     <form onSubmit={handleSubmit} className="space-y-3.5 py-1" dir="ltr">
       {/* Account Type Selector */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-semibold text-foreground">Facility Type *</Label>
+        <Label className="text-xs font-semibold text-foreground">Account Type *</Label>
         <div className="grid grid-cols-3 gap-2">
           <button
             type="button"
@@ -415,9 +415,9 @@ export function EnrollAccountModal({
       <Button
         type="submit"
         disabled={loading}
-        className="w-full font-bold text-xs h-10 shadow-sm"
+        className="w-full font-bold text-xs h-10 shadow-sm cursor-pointer"
       >
-        {loading ? "Registering..." : "Confirm Facility Enrollment & Save"}
+        {loading ? "Registering..." : "Confirm Account Enrollment & Save"}
       </Button>
     </form>
   );
@@ -428,7 +428,7 @@ export function EnrollAccountModal({
         <DrawerContent className="p-4 max-h-[92vh]">
           <DrawerHeader className="text-left pb-2">
             <DrawerTitle className="text-base font-bold flex items-center gap-2">
-              <KeyRound className="size-5 text-primary" /> Enroll Facility in EVA Pen Program
+              <KeyRound className="size-5 text-primary" /> Enroll Account in EVA Pen Program
             </DrawerTitle>
             <DrawerDescription className="text-xs text-muted-foreground">
               Register a participating clinic or pharmacy, assign initial inventory, and dispatch their PIN.
@@ -445,7 +445,7 @@ export function EnrollAccountModal({
       <DialogContent className="sm:max-w-md p-5" dir="ltr">
         <DialogHeader className="text-left pb-1">
           <DialogTitle className="text-base font-bold flex items-center gap-2">
-            <KeyRound className="size-5 text-primary" /> Enroll Facility in EVA Pen Program
+            <KeyRound className="size-5 text-primary" /> Enroll Account in EVA Pen Program
           </DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
             Register a participating clinic or pharmacy, assign initial inventory, and dispatch their PIN.

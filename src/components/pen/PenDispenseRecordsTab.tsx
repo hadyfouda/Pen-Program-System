@@ -87,8 +87,8 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
     const headers = [
       "Record ID",
       "Date",
-      "Facility Name",
-      "Facility Type",
+      "Account Name",
+      "Account Type",
       "Prescribing Doctor",
       "Patient Name",
       "Phone",
@@ -135,9 +135,6 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
             <ClipboardList className="size-5 text-primary" />
             Dispense Records & Supporting Documents
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Audit patient dispensing, dispensed insulin formulations, and review uploaded prescriptions and National IDs
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -177,7 +174,7 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
 
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             {[
-              { id: "all", label: "All Facilities" },
+              { id: "all", label: "All Accounts" },
               { id: "private_clinic", label: "Clinics" },
               { id: "pharmacy", label: "Pharmacies" },
               { id: "medical_center", label: "Medical Centers" },
@@ -221,7 +218,7 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
               <thead>
                 <tr className="border-b bg-muted/30 text-muted-foreground font-semibold">
                   <th className="p-2.5">Record ID / Date</th>
-                  <th className="p-2.5">Facility</th>
+                  <th className="p-2.5">Account</th>
                   <th className="p-2.5">Physician</th>
                   <th className="p-2.5">Patient Details</th>
                   <th className="p-2.5">National ID</th>
@@ -457,7 +454,7 @@ export function PenDispenseRecordsTab({ records, onRefresh }: PenDispenseRecords
             {/* Bottom Meta */}
             <div className="pt-3 border-t flex flex-wrap items-center justify-between text-[11px] text-muted-foreground gap-2">
               <span>Physician: {viewRecord.prescribing_doctor}</span>
-              <span>Facility: {viewRecord.account_name}</span>
+              <span>Account: {viewRecord.account_name}</span>
               <span>Product: {viewRecord.product_name}</span>
               <span>National ID: {viewRecord.national_id}</span>
             </div>
