@@ -84,8 +84,6 @@ export function App() {
 /*  Completely separate app layout with zero admin navigation or tabs    */
 /* ==================================================================== */
 function StandalonePharmacyPortal() {
-  const [storageStatus] = useState<StorageStatus>(() => penService.getStorageStatus());
-
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans" dir="rtl">
       {/* Dedicated Pharmacy Portal Header */}
@@ -104,32 +102,9 @@ function StandalonePharmacyPortal() {
               <div className="flex items-center gap-2">
                 <h1 className="text-xs sm:text-sm font-black text-foreground tracking-tight flex items-center gap-1.5">
                   <Syringe className="size-4 text-primary shrink-0" />
-                  محطة صرف أقلام الأنسولين
+                  بوابة صرف اقلام انسولين إيفا
                 </h1>
-                <Badge
-                  variant="outline"
-                  className="hidden sm:inline-flex border-primary/30 text-primary bg-primary/5 text-[9px] font-bold"
-                >
-                  بوابة الصيدليات والعيادات
-                </Badge>
               </div>
-              <p className="text-[10px] text-muted-foreground hidden sm:block">
-                بوابة الخدمة الذاتية المعتمدة لصرف الأقلام ودعم المرضى
-              </p>
-            </div>
-          </div>
-
-          {/* Right Status Badge */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/60 border text-[11px]">
-              <span
-                className={`size-2 rounded-full ${
-                  storageStatus.excelConnected ? "bg-emerald-500 animate-pulse" : "bg-sky-500"
-                }`}
-              />
-              <span className="font-medium text-foreground">
-                {storageStatus.excelConnected ? "سحابة Microsoft 365" : "تخزين مشفر آمن"}
-              </span>
             </div>
           </div>
         </div>
@@ -314,7 +289,7 @@ function AdminManagementPortal() {
   const handleCopyPharmacyPortalLink = () => {
     navigator.clipboard.writeText(getPortalUrl());
     setCopiedLink(true);
-    toast.success("تم نسخ رابط محطة الصرف المخصصة للصيدليات إلى الحافظة!");
+    toast.success("تم نسخ رابط بوابة صرف أقلام إيفا المخصصة للصيدليات إلى الحافظة!");
     setTimeout(() => setCopiedLink(false), 2500);
   };
 

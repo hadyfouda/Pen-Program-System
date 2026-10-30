@@ -36,7 +36,6 @@ import {
   Send,
   Sparkles,
   ChevronDown,
-  ShieldCheck,
   Lock,
 } from "lucide-react";
 
@@ -116,12 +115,9 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
           </div>
           <div>
             <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 bg-primary/5 mb-1.5">
-              محطة صرف أقلام الأنسولين
+              بوابة صرف اقلام انسولين إيفا
             </Badge>
             <h1 className="text-xl font-black text-foreground tracking-tight">بوابة صرف الصيدليات والعيادات</h1>
-            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto leading-relaxed">
-              أدخل كود الـ PIN المكوّن من 6 أرقام المعتمد لمنشأتك لبدء صرف أقلام الأنسولين وفحص سقف المريض ومتابعة الرصيد المتاح.
-            </p>
           </div>
         </div>
 
@@ -164,7 +160,7 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
               className="w-full font-bold h-11 text-xs sm:text-sm gap-2 shadow-sm"
             >
               <LogIn className="size-4" />
-              {loading ? "جاري التحقق من الـ PIN..." : "تسجيل الدخول لمحطة الصرف"}
+              {loading ? "جاري التحقق من الـ PIN..." : "تسجيل الدخول للبوابة"}
             </Button>
           </form>
 
@@ -176,12 +172,6 @@ function PortalPinLogin({ onLogin }: { onLogin: (acc: EnrolledAccount) => void }
               برجاء التواصل مع مندوب دعاية إيفا فارما المسؤول عن منطقتك للحصول على كود الدخول.
             </p>
           </div>
-        </div>
-
-        {/* Security badge */}
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-          <ShieldCheck className="size-3.5 text-emerald-500" />
-          <span>نظام تدقيق مشفر لبيانات المرضى • سحابة Microsoft 365</span>
         </div>
       </div>
     </div>
